@@ -1,0 +1,9 @@
+#commit 1:commit 2:commit 3
+
+loading time: 10 5 6
+executable size: 400 300 250
+parsing args: 132 145 78
+
+computing images: 15203 15203 14569
+
+
