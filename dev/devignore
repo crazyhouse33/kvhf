@@ -1,0 +1,6 @@
+#this file serve the same purpose and and offer same functinnality as .gitignore but determine wether or not a file should be run against continious integration. The patterns us be relatives to root of project (containing a .git dir) and are regexp expressions
+
+extern/.*
+build/.*
+bin/.*
+dev/.*
