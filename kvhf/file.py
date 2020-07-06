@@ -1,6 +1,7 @@
 import matplotlib.pyplot as pyplot
 from warnings import warn
 from collections import defaultdict
+from kvhf.stat import Serie_stats
 
  
 
@@ -14,10 +15,11 @@ class KVH_file:
         self.value_sep=value_sep;
         self.value_generator= value_generator
         self.labels=[]
-        self.dico={}
-        if not file_or_dico:
-            self.dico = defaultdict(list)  
-        elif isinstance(file_or_dico,dict):
+        self.dico = defaultdict(Serie_stats)  
+        self.current_key=""
+        if file_or_dico==None:
+            return
+        if isinstance(file_or_dico,dict):
             self.dico = file_or_dico
         elif isinstance (file_or_dico, str):
             self.parse_file_name(file_or_dico)
@@ -25,7 +27,7 @@ class KVH_file:
             try:
                 self.parse_file(file_or_dico)
             except:
-                raise TypeError("Init file or dico must be a path (str), a file, or dictionnary, not"+ str(type(file_or_dico)))
+                raise TypeError("Init argument must be nothing, a path (str), a file, or dictionnary, not"+ str(type(file_or_dico)))
 
 
     
@@ -50,10 +52,31 @@ class KVH_file:
         if line.startswith('#'):
             self.labels.append((cpt, line[1:].split(self.key_sep)))
 
+    def parse_values(self, values):
+        return [self.value_generator(str_value) for str_value in  values.strip().split(self.value_sep)]
+
+
     def parse_line(self, line):
         key, sep, values= line.partition(self.key_sep)
-        if sep:
-            self.dico[key.strip()]= [self.value_generator(str_value) for str_value in  values.strip().split(self.value_sep)]
+        key=key.strip()
+        if (not sep):
+            if key:
+                warn("Ignoring line :\n\"" + line + "\"\n because no value separator found")
+            return 
+        if key.startswith("-") and self.current_key:
+            values= self.parse_values(values)
+            if key[1::].strip().startswith( "maxs"):
+                    self.dico[self.current_key].maxs=values 
+            elif key[1::].strip().startswith( "mins"):
+                    self.dico[self.current_key].mins= values
+            elif key[1::].strip().startswith( "stdev"):
+                    self.dico[self.current_key].stdevs= values
+            else:
+                warn("Unknow attribute at line: "+line)
+        else:
+            self.current_key=key
+            stats= self.dico[self.current_key]
+            stats.means= self.parse_values(values)
 
     def parse_labels(self, line):
         if line.startswith("#"):
@@ -90,22 +113,26 @@ class KVH_file:
         for key in keys:
             self.key_extend(key, file2.dico[key])
 
-    def key_extend(self, key, values):
-        self.dico[key].extend(values)
+    def key_extend(self, key, stats):
+        self.dico[key].extend(stats)
+
+    
 
     def plot(self, keys=None, path="kvh_plot.svg", format="svg", ylabel=""):
         """Plot on same graph every values of given keys (all by default)"""
-        if  keys==None:
-            keys= self.dico.keys()
-        
+        #Ploting nice grid and stuff
         pyplot.figure()
-
         pyplot.xticks(range(len(self.labels)), self.labels)
         pyplot.grid(axis="x")
         pyplot.ylabel(ylabel)
 
+        if  keys==None:
+            keys= self.dico.keys()
+        
         for key in keys:
-            pyplot.plot(self.dico[key], label=key)
+            self.dico[key].plot(key)
+
+        pyplot.legend()
 
         pyplot.savefig(path,format=format)
 
@@ -118,7 +145,7 @@ class KVH_file:
         if label!=None:
             it = self.labels.index(label)
 
-        values = [self.dico[key][it] for key in keys]
+        values = [self.dico[key].means[it] for key in keys]
 
         pyplot.figure()
         pyplot.pie(values, labels=keys)
@@ -127,9 +154,3 @@ class KVH_file:
     
     def __eq__(self, other):
         return self.dico == other.dico
-
-
-
-
-
-
