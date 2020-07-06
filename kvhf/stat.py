@@ -17,6 +17,8 @@ class Serie_stats:
 
     def plot(self, label ):
         """Plot history with given label"""
+        if self.unity:
+            label += " ("+self.unity+")"
         if self.stdevs:
             base_line=pyplot.errorbar(range(len(self.means)), self.means, yerr=self.stdevs, label=label).lines[0]
         else:

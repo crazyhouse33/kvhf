@@ -57,26 +57,31 @@ class KVH_file:
 
 
     def parse_line(self, line):
-        key, sep, values= line.partition(self.key_sep)
+        key, sep, values_str= line.partition(self.key_sep)
         key=key.strip()
         if (not sep):
             if key:
                 warn("Ignoring line :\n\"" + line + "\"\n because no value separator found")
             return 
+
         if key.startswith("-") and self.current_key:
-            values= self.parse_values(values)
-            if key[1::].strip().startswith( "maxs"):
-                    self.dico[self.current_key].maxs=values 
-            elif key[1::].strip().startswith( "mins"):
-                    self.dico[self.current_key].mins= values
-            elif key[1::].strip().startswith( "stdev"):
-                    self.dico[self.current_key].stdevs= values
+            
+            if key[1::].strip().startswith( "unity"):
+                    self.dico[self.current_key].unity= values_str.strip()
             else:
-                warn("Unknow attribute at line: "+line)
+                values= self.parse_values(values_str)
+                if key[1::].strip().startswith( "maxs"):
+                        self.dico[self.current_key].maxs=values 
+                elif key[1::].strip().startswith( "mins"):
+                        self.dico[self.current_key].mins= values
+                elif key[1::].strip().startswith( "stdev"):
+                        self.dico[self.current_key].stdevs= values
+                else:
+                    warn("Unknow attribute at line: "+line)
         else:
             self.current_key=key
             stats= self.dico[self.current_key]
-            stats.means= self.parse_values(values)
+            stats.means= self.parse_values(values_str)
 
     def parse_labels(self, line):
         if line.startswith("#"):
