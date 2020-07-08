@@ -40,9 +40,9 @@ def did_you(string):
             exit("Well do it")
 
 if not args.dry:
-    did_you("update authbreak help page (interface/cliparser.c)")
-    did_you("update authbreak TEMPLATE readme (dev/push_release_to_master/push_to_master.py.cmake_template)")
-    did_you("change the version number (CMakeLists.txt")
+    did_you("update help page (parser.py)")
+    did_you("update readme")
+    did_you("change the version number setup.py")
 
 current_dir=os.getcwd()
 build_dir= "@CMAKE_BINARY_DIR@"

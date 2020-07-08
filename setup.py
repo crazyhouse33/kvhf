@@ -1,11 +1,12 @@
 import setuptools
+version="0.0.0"
 
 with open("README.md") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="kvhf", # Replace with your own username
-    version="0.0.0",
+    version=version,
     author="Alonso Hugo",
     author_email="author@example.com",
     description="Python package to manipulate kvhf files",

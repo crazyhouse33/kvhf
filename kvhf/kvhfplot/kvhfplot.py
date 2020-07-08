@@ -38,7 +38,6 @@ else:
         for commit in repo.iter_commits(branch, paths=path, since_hash = start_commit):
             if (commit.hexsha not in forbiden_commits):
                 good_commits.append(commit)
-
     else:
         good_commits=[repo.rev_parse(commit) for commit in commits]
 
