@@ -3,9 +3,6 @@ from collections import defaultdict
 
 import matplotlib.pyplot as pyplot
 
- 
-
-
 
 class Serie_stats:
     def __init__(self):
@@ -15,26 +12,27 @@ class Serie_stats:
         self.stdevs=[]
         self.unity=""
 
-    def plot(self, label ):
-        """Plot history with given label"""
+    def plot(self, label, pos=None ):
+        """Plot history at given positions"""
+        submeans=[self.means[i] for i in pos if i<len(self.means) ]
+        substdevs=[self.stdevs[i]  for i in pos if i<len(self.stdevs)]
+        submaxs=[self.maxs[i] for i in pos if i<len(self.maxs) ]
+        submins= [self.mins[i] for i in pos if i<len(self.mins) ]
+
         if self.unity:
             label += " ("+self.unity+")"
-        if self.stdevs:
-            base_line=pyplot.errorbar(range(len(self.means)), self.means, yerr=self.stdevs, label=label).lines[0]
+
+        if substdevs:
+            base_line=pyplot.errorbar(pos,submeans,yerr=substdevs, label=label).lines[0]
         else:
             base_line, = pyplot.plot(self.means, label=label)
 
-
         current_color=base_line.get_color()
+        if submaxs:
+            pyplot.fill_between (pos, submaxs, submeans,alpha=0.3,color=current_color )
 
-
-
-
-        if self.maxs:
-            pyplot.fill_between (range(len(self.means)), self.maxs, self.means,alpha=0.3,color=current_color )
-
-        if self.mins:
-            pyplot.fill_between (range(len(self.means)), self.mins, self.means,alpha=0.3, color=current_color)
+        if submins:
+            pyplot.fill_between (pos,submins ,submeans, alpha=0.3, color=current_color)
 
         
     def __str__(self):

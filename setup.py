@@ -1,11 +1,11 @@
 import setuptools
-version="0.0.0"
+from meta import version
 
 with open("README.md") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="kvhf", # Replace with your own username
+    name="kvhf", 
     version=version,
     author="Alonso Hugo",
     author_email="author@example.com",

@@ -3,14 +3,19 @@ from warnings import warn
 from collections import defaultdict
 from kvhf.stat import Serie_stats
 
- 
 
 class KVH_file:
     default_key_sep = ":"
     default_value_sep = " "
     default_value_generator=float
-    def __init__(self, file_or_dico=None, key_sep=default_key_sep, value_sep=default_value_sep, value_generator= default_value_generator):
+    def __init__(self, file_or_dico=None, key_sep=None, value_sep=None, value_generator=None ):
         """Create a super dict from a normal dict, or a file. Empty super dict if nothing"""
+        if value_generator==None:
+            value_generator= KVH_file.default_value_generator
+        if key_sep==None:
+            key_sep=KVH_file.default_key_sep
+        if value_sep==None:
+            value_sep=KVH_file.default_value_sep
         self.key_sep=key_sep;
         self.value_sep=value_sep;
         self.value_generator= value_generator
@@ -123,22 +128,35 @@ class KVH_file:
 
     
 
-    def plot(self, keys=None, path="kvh_plot.svg", format="svg", ylabel=""):
+    def plot(self, keys=None, path=None, format=None, ylabel=None, pos=None):
         """Plot on same graph every values of given keys (all by default)"""
-        #Ploting nice grid and stuff
-        pyplot.figure()
-        pyplot.xticks(range(len(self.labels)), self.labels)
-        pyplot.grid(axis="x")
-        pyplot.ylabel(ylabel)
+        if ylabel==None:
+            ylabel=""
+
+        if path== None:
+            path="kvh_plot.svg"
+
+        if format==None:
+            format="svg"
+        
+        if pos==None:
+            pos=range(len(self.labels))
+
+        labels = [self.labels[i] for i in pos]
 
         if  keys==None:
             keys= self.dico.keys()
         
+        #Ploting nice grid and stuff
+        pyplot.figure()
+        pyplot.xticks(range(len(labels)), labels)
+        pyplot.grid(axis="x")
+        pyplot.ylabel(ylabel)
+        
         for key in keys:
-            self.dico[key].plot(key)
+            self.dico[key].plot(key, pos)
 
         pyplot.legend()
-
         pyplot.savefig(path,format=format)
 
 
