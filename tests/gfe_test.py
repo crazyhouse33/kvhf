@@ -1,29 +1,34 @@
-from gfe.gfe import git_file_explore
+from gfe.gfe import git_explore_commits
 import pytest
 
 
 
 def test_simple():
-    generator = git_file_explore("test", reverse=True)
-    file, commit = next(generator)
+    generator = git_explore_commits("test", reverse=True)
+    commit = next(generator)
+    file= commit.search_files('test')
     assert file.read()==b"test1\n"
-    file, commit = next(generator)
+    commit = next(generator)
+    file= commit.search_files('test')
     assert file.read()==b"test2\n"
-    file, commit = next(generator)
+    commit = next(generator)
+    file= commit.search_files('test')
     assert file.read()==b"test3\n"
 
     with pytest.raises(StopIteration):
-        file, commit = next(generator)
+       commit = next(generator)
         
 
 def test_filter():
-    generator= git_file_explore("test",  filter=["7392e9907a7d1e7e6d77373bd81ff0b992f8ffc3"], reverse=True)
-    file, commit = next(generator)
+    generator= git_explore_commits("test",  filter=["7392e9907a7d1e7e6d77373bd81ff0b992f8ffc3"], reverse=True)
+    commit = next(generator)
+    file= commit.search_files('test')
     assert file.read()==b"test1\n"
-    file, commit = next(generator)
+    commit = next(generator)
+    file= commit.search_files('test')
     assert file.read()==b"test3\n"
     with pytest.raises(StopIteration):
-        file, commit = next(generator)
+        commit = next(generator)
 
 
 

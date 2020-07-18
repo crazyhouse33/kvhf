@@ -36,21 +36,33 @@ class KVH_file:
 
 
     
-    def dump(self, file, keys=None, key_sep=default_key_sep, value_sep=default_value_sep):
+    def dump(self, file, keys=None, key_sep=None, value_sep=None):
         """Serialize subset of keys (default all) to given path"""
         if keys == None:
             keys= self.dico.keys()
 
-        with open(file,"w") as f:
-            for key in keys:
-                print("{}{}{}".format(key, key_sep, value_sep.join(self.dico[key])),file=f)
+        if key_sep==None:
+            key_sep=self.key_sep
+
+        if value_sep==None:
+            value_sep=self.value_sep
+
+        if type(file)==str:
+            file = open(file,"w")
+
+        #dump labels
+        print ("#"+self.key_sep.join(self.labels), file=file)
+        
+        #dump keys
+        for key in keys:
+            print(self.dico[key].dump(key,value_sep, key_sep), file=file)
 
     def parse_file(self, file):
         """Parse a file"""
         lines= file.read().split('\n')
         self.parse_labels(lines[0])
         if not self.labels:
-            warn("No labels found in file ", file)
+            warn("No labels found in file: "+ file.name)
         for line in lines[1::]: 
             self.parse_line(line)
 
@@ -58,7 +70,7 @@ class KVH_file:
             self.labels.append((cpt, line[1:].split(self.key_sep)))
 
     def parse_values(self, values):
-        return [self.value_generator(str_value) for str_value in  values.strip().split(self.value_sep)]
+        return [self.value_generator(str_value) for str_value in  values.strip().split(self.value_sep) if str_value]
 
 
     def parse_line(self, line):

@@ -49,5 +49,12 @@ def test_plot():
     histo1.plot(keys=[x for x in histo1.dico.keys() if x!="computing images"])
     histo1.pie_plot(keys=[x for x in histo1.dico.keys() if x!="computing images"])
 
+def test_dump():
+    histo_full=KVH_file("test_all_print.hdf")
+    histo_full.dump("test_dump.hdf")
+    histo_full2= KVH_file("test_dump.hdf")
+    assert histo_full==histo_full2
+
+
 
 

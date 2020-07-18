@@ -36,14 +36,24 @@ class Serie_stats:
 
         
     def __str__(self):
-        lines=["means:"+ " ".join(map(str,self.means)),
-                "maxs:"+" ".join(map(str,self.maxs)),
-                "mins:"+" ".join(map(str,self.mins)),
-                "stdevs:"+" ".join(map(str,self.stdevs))
-                ]
+        return self.dump("means", " ", ":")
+
+    def dump(self, label, value_sep, key_sep):
+        lines=[label + key_sep + value_sep.join(map(str,self.means))]
+        if self.maxs:
+            lines.append('-maxs'+key_sep+ value_sep.join(map(str,self.maxs)))
+        if self.mins:
+            lines.append('-mins'+key_sep+ value_sep.join(map(str, self.mins)))
+        if self.stdevs:
+            lines.append('-stdevs'+key_sep+ value_sep.join(map(str, self.stdevs)))
+        if self.unity:
+            lines.append('-unity'+key_sep+ self.unity )
         return '\n'.join(lines)
 
+
     def extend(self, other):
+        if self.unity != other.unity:
+            warn("WARNING, extending keys of different units")
         self.means.extend(other.means)
         self.maxs.extend(other.maxs)
         self.mins.extend(other.mins)

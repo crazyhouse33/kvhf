@@ -8,19 +8,63 @@ def get_git_file(path,commit):
 
 args= parser.getArgs()
 
-path = args["file"]
+paths = args["files"]
+out_path=args["out_path"]
 sep_key = args["sep_key"] 
-sep_val=args["sep_val"
-keys=args["keys"]
-branch= args["branch"]
-start_commit=args["start_commit"]
-commits=args["commits"]
+sep_val=args["sep_val"]
+keys=args["add_key"]
+git_extract=args['git_extract']
+git_actualized_label=args['git_actualized_label']
+merge=args["merge"]
+extend_history=args["extend_history"]
 forbiden_commits = args["commits_filter"]
 
-if not args['git']:
+if merge:
+    merge_handle(paths, out_path, vertical=True, keys=keys)
+    
+elif extend_history:
+    merge_handle(paths, out_path, vertical=False, keys=keys)
 
-    sdf= Serie_dict_file(path, sep_key, sep_val])
-    sdf.plot_pie(keys)
+elif keys:
+    for f in paths:
+        kvh_File= KVH_file(f, key_sep=sep_key, value_sep= sep_val)
+        for key in keys:
+            split= key.split(self.sep_key)
+            if len(split)==2:
+                key_name, values= split
+                kvh_File[key_name].means.extend(kvh_File.parse_values(values))
+            elif len(split)==3:
+                key_name, attr, values = split
+                getattr(kvh_File[key_name], attr).extend(kvh_File.parse_values(values))
+            else:
+                sys.exit("Error, In key add mode, the keys should be in the form KEYNAME KEYSEP VALUE1 VALUESEP VALUE2 to add values to keys or KEYNAME KEYSEP ATTRIBUTE KEYSEP VALUE1 VALUESEP VALUE2... to add drawing attribute to an existant key ")
+        kvh_File.dump(path)
+
+elif git_extract:
+
+
+
+    
+
+def merge_handle(paths, output, vertical=True):
+    res=KVH_file(key_sep=sep_key, value_sep= sep_val)
+    if vertical:
+        the_function=res.merge_vertical
+    else:
+        the_function=res.merge_horizontal
+    
+    for path in paths:
+            the_function(path)
+    res.dump(out_path)
+
+
+
+
+if extend_history:
+    res=KVH_file()
+    for path in paths:
+        res.merge_horizontal(path)
+
 else:
 
     import git
