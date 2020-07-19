@@ -24,9 +24,14 @@ def git_explore_commits(repo_path, paths_restriction=[], branchs=None, commits=N
     if commits == None:
         commits=[commit for commit in repo.iter_commits(paths=paths_restriction,rev=branchs, **kwargs) if commit.hexsha not in filter]
     else:
-        commits=[repo.rev_parse(commit) for commit in commits if commit not in filter]
+        commits=[repo.rev_parse(commit,rev=branchs) for commit in commits if commit not in filter]
     for commit in commits:
         yield commit
+
+def git_get_head(path):
+    """Return head of current repo of given path"""
+    repo = git.Repo(repo_path, search_parent_directories=True)
+    return repo.head
 
 
 
