@@ -73,7 +73,6 @@ else:
     if not paths:
         sys.exit("At least one file to extract must be given in order to localize git repo")
     repo= gfe.get_repo(paths[0])
-
     if git_extract:
         res= KVH_file(key_sep=sep_key, value_sep= sep_val)
         for commit in gfe.explore_commits(repo, commits=commits_manual_selection, filter=forbiden_commits, branchs=branchs, paths_restrict=paths_restrict,reverse=True):
@@ -95,7 +94,12 @@ else:
         res.dump(out_path)
 
     elif git_actualized_label:
-        head= repo.head.commit
+        try:
+            head= repo.head.commit
+        except ValueError:#There is no commit
+            sys.exit(0)
+
+
         for path in paths:
             current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
             old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)

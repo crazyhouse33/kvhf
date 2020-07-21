@@ -50,7 +50,8 @@ class KVH_file:
             file = open(file,"w")
 
         #dump labels
-        print ("#"+self.key_sep.join(self.labels), file=file)
+        if self.labels:
+            print ("#"+self.key_sep.join(self.labels), file=file)
         
         #dump keys
         for key in keys:
@@ -62,10 +63,14 @@ class KVH_file:
         if not type(file_content)==str:
             file_content=file_content.decode()
         lines= file_content.split('\n')
-        self.parse_labels(lines[0])
+        if lines[0].startswith("#"):
+            self.parse_labels(lines[0])
+            start=1
+        else:
+            start=0
         if not self.labels:
             warn("No labels found in file: "+ file.name)
-        for line in lines[1::]: 
+        for line in lines[start::]: 
             self.parse_line(line)
 
         if line.startswith('#'):
@@ -103,7 +108,6 @@ class KVH_file:
             stats.means= self.parse_values(values_str)
 
     def parse_labels(self, line):
-        if line.startswith("#"):
             self.labels=line[1::].split(self.key_sep)
 
 
@@ -144,7 +148,6 @@ class KVH_file:
 
     def labels_to_pos(self, labels):
         return [self.labels.index(label) for label in labels]
-    
 
     def plot(self, keys=None, path=None, format=None, ylabel=None, pos=None):
         """Plot on same graph every values of given keys (all by default)"""

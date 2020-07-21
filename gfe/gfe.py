@@ -28,7 +28,11 @@ def explore_commits(repo, paths_restriction=[], branchs=None, commits=None, filt
     root= repo.working_dir
     paths= [os.path.relpath(path, start = root) for path in paths_restriction]
     if commits == None:
-        commits=[commit for commit in repo.iter_commits(paths=paths_restriction,rev=branchs, **kwargs)]
+        try:
+            commits=[commit for commit in repo.iter_commits(paths=paths_restriction,rev=branchs, **kwargs)]
+        except ValueError:#No commits
+            commits=[]
+
     else:
         commits=[repo.rev_parse(commit) for commit in commits]
     for commit in commits:
@@ -46,9 +50,11 @@ def diffs(paths,repo=None):
     if repo==None:
         repo= git_get_repo(path)
     paths=[os.path.relpath(path, start = repo.working_dir) for path in paths]
-    tree=repo.head.commit.tree
-    diffs= tree.diff(None, paths=paths)
-    return diffs
+    try:
+        tree=repo.head.commit.tree
+    except ValueError:
+        return True #There were no commit so everything is a diff
+    return tree.diff(None, paths=paths)
 
 
 

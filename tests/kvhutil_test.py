@@ -35,6 +35,7 @@ def test_merge():
 def test_add():
     remove("add_test.hdf")
     dont_crash( prefix + ' add_test.hdf -k toto:18,18,45 toto:mins:48,48,89 toto:maxs:18,45,63 -k toto:stdevs:45,45,45', )
+
     f=KVH_file('add_test.hdf')
     assert f.dico["toto"].means==[18,18,45]
     assert f.dico["toto"].mins==[48,48,89]
@@ -49,6 +50,7 @@ def test_actualized():
     crash(prefix + 'test_not_actualized/test -a')
     crash(prefix + 'test_not_actualized/test test_actualized -a')
     dont_crash(prefix  + 'test_actualized/test -a')
+    dont_crash(prefix  + 'test_new/test -a')
     
 def test_extract():
     remove("extract_test.kvhf")
@@ -79,6 +81,14 @@ def test_extract():
     dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c ff56 913f8 -C ff56'  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label3','label4']
+
+    dont_crash( prefix + ' -o extract_test.kvhf -g test_new/test -d'  )
+    f= KVH_file("extract_test.kvhf")
+    assert f.labels== ['labe1']
+
+    dont_crash( prefix + ' -o extract_test.kvhf -g test_new/test '  )
+    f= KVH_file("extract_test.kvhf")
+    assert f.labels== []
 
 
 
