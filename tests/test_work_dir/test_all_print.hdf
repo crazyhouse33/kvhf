@@ -1,13 +1,13 @@
 #commit 1:commit 2:commit 3
 
-loading time: 100 50 60
--maxs: 150 60 80
--mins: 60 40 50
--stdevs: 20 30 40
-executable size: 400 300 250
+loading time: 100, 50, 60
+-maxs: 150, 60, 80
+-mins: 60, 40, 50
+-stdevs: 20, 30, 40
+executable size: 400, 300, 250
 -unity: Mo
-parsing args: 132 145 78
--mins: 127 143 75
+parsing args: 132, 145, 78
+-mins: 127, 143, 75
 
 
 

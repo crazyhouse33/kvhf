@@ -19,9 +19,10 @@ def select_pos(kvh_file, labels, labels_filter):
     """Given a list of wanted label regexp string , and a list of unwanted one, return necessary indexs to match requirement"""
     labels_reg= map(re.compile,labels)
     labels_filter_reg= map(re.compile,labels_filter)
-    return [i for i in range(len(kvh_file.labels)) if (any(regex.match(kvh_file.labels[i]) for regex in labels_reg) or not labels) and
-        not any(regex.match(kvh_file.labels[i]) for regex in labels_filter_reg)
+    matching_labels=[label for label in kvh_file.labels if (any(regex.match(label) for regex in labels_reg) or not labels) and
+        not any(regex.match(label) for regex in labels_filter_reg)
         ]
+    return kvh_file.labels_to_pos(matching_labels)
 #We need to import the module for testing the two upper functions
 if __name__ == "__main__":
 #import bcolors

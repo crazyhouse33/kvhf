@@ -12,27 +12,37 @@ class Serie_stats:
         self.stdevs=[]
         self.unity=""
 
+
+
+    def fragment(self,pos=None):
+        if pos==None:
+            pos= range(len(self.means))
+        res= Serie_stats()
+        res.means=[self.means[i] for i in pos if i<len(self.means) ]
+        res.stdevs=[self.stdevs[i]  for i in pos if i<len(self.stdevs)]
+        res.maxs=[self.maxs[i] for i in pos if i<len(self.maxs) ]
+        res.mins= [self.mins[i] for i in pos if i<len(self.mins) ]
+        res.unity=self.unity
+        return res
+
     def plot(self, label, pos=None ):
         """Plot history at given positions"""
-        submeans=[self.means[i] for i in pos if i<len(self.means) ]
-        substdevs=[self.stdevs[i]  for i in pos if i<len(self.stdevs)]
-        submaxs=[self.maxs[i] for i in pos if i<len(self.maxs) ]
-        submins= [self.mins[i] for i in pos if i<len(self.mins) ]
+        substat=self.fragment(pos)
 
-        if self.unity:
-            label += " ("+self.unity+")"
+        if substat.unity:
+            label += " ("+substat.unity+")"
 
-        if substdevs:
-            base_line=pyplot.errorbar(pos,submeans,yerr=substdevs, label=label).lines[0]
+        if substat.stdevs:
+            base_line=pyplot.errorbar(pos,substat.means,yerr=substat.stdevs, label=label).lines[0]
         else:
-            base_line, = pyplot.plot(self.means, label=label)
+            base_line, = pyplot.plot(substat.means, label=label)
 
         current_color=base_line.get_color()
-        if submaxs:
-            pyplot.fill_between (pos, submaxs, submeans,alpha=0.3,color=current_color )
+        if substat.maxs:
+            pyplot.fill_between (pos, substat.maxs, substat.means,alpha=0.3,color=current_color )
 
-        if submins:
-            pyplot.fill_between (pos,submins ,submeans, alpha=0.3, color=current_color)
+        if substat.mins:
+            pyplot.fill_between (pos,substat.mins ,substat.means, alpha=0.3, color=current_color)
 
         
     def __str__(self):

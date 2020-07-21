@@ -27,7 +27,6 @@ def test_merge_horizontal():
     histo1= KVH_file("test_data123.hdf")
     histo2=  KVH_file("test_data145.hdf")
     histo1.merge_horizontal(histo2)
-
     expected= KVH_file("horizontal_concat.hdf")
 
     assert expected == histo1

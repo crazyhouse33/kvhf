@@ -6,7 +6,7 @@ from kvhf.stat import Serie_stats
 
 class KVH_file:
     default_key_sep = ":"
-    default_value_sep = " "
+    default_value_sep = ","
     default_value_generator=float
     def __init__(self, file_or_dico=None, key_sep=None, value_sep=None, value_generator=None ):
         """Create a super dict from a normal dict, or a file. Empty super dict if nothing"""
@@ -28,11 +28,10 @@ class KVH_file:
             self.dico = file_or_dico
         elif isinstance (file_or_dico, str):
             self.parse_file_name(file_or_dico)
-        else:#python 3 cant use file 
-            try:
+        elif hasattr(file_or_dico,'read') and callable(file_or_dico.read):#python 3 cant use file 
                 self.parse_file(file_or_dico)
-            except:
-                raise TypeError("Init argument must be nothing, a path (str), a file, or dictionnary, not"+ str(type(file_or_dico)))
+        else:
+            raise TypeError("Init argument must be nothing, a path (str), a file, or dictionnary, not "+ str(type(file_or_dico)))
 
 
     
@@ -59,7 +58,10 @@ class KVH_file:
 
     def parse_file(self, file):
         """Parse a file"""
-        lines= file.read().split('\n')
+        file_content= file.read()
+        if not type(file_content)==str:
+            file_content=file_content.decode()
+        lines= file_content.split('\n')
         self.parse_labels(lines[0])
         if not self.labels:
             warn("No labels found in file: "+ file.name)
@@ -113,13 +115,15 @@ class KVH_file:
 
     def merge_vertical(self,file2, keys=None):
         """Add entries of dico 2 corresponding to keys (by default all). If key is allready present, the new value replace the old one. This is supposed to be the same as concating 2 files and parsing the result"""
-        if self.labels != file2.labels:
-            warn("Vertical merge on different labels files. New label are the one of the first)")
+        if file2.labels:
+            if self.labels and self.labels != file2.labels:
+                warn("Vertical merge on different labels files. New labels replaced old ones)")
+            self.labels=file2.labels 
         if keys == None:
             keys = file2.dico.keys()
 
         for key in keys:
-            if self.dico[key]:
+            if key in self.dico:
                 warn("Key "+ key+ " is going to be overwritten by vertical merge")
             self.dico[key]= file2.dico[key]
 
@@ -138,6 +142,8 @@ class KVH_file:
     def key_extend(self, key, stats):
         self.dico[key].extend(stats)
 
+    def labels_to_pos(self, labels):
+        return [self.labels.index(label) for label in labels]
     
 
     def plot(self, keys=None, path=None, format=None, ylabel=None, pos=None):

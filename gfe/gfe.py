@@ -3,6 +3,8 @@ import os
 from collections.abc import Iterable
 from types import MethodType
 
+#This is my wrapper around gitpython, which alone is hard to use
+
 #we add a convenient method to gitpython commit 
 def search_files(self, paths):
     if type(paths) == str:#manage mono path
@@ -12,26 +14,46 @@ def search_files(self, paths):
 
 
 git.objects.Commit.search_files =search_files
+Tree= git.objects.tree.Tree
 
 
 #filter is integrated in new git rev version, but not in my current so the function handle the commit filter stuff
-def git_explore_commits(repo_path, paths_restriction=[], branchs=None, commits=None, filter=[], **kwargs):
+def explore_commits(repo, paths_restriction=[], branchs=None, commits=None, filter=None, **kwargs):
     """Generator containing commits matching your selections. Branch is a space separated list of branch. current branch by default. Path restriction come from gitpython that mysteriously decided to not put it in kwarg. Kwargs is argument you can give to the git rev-list command, such as reversed=True, filter=[], skip=5, after...
+    Filter is a list of begins of hash. Any commit having same begining will be skipped
     """
-    repo = git.Repo(repo_path, search_parent_directories=True)
+    if filter==None:
+        filter=[]
+    
     root= repo.working_dir
     paths= [os.path.relpath(path, start = root) for path in paths_restriction]
     if commits == None:
-        commits=[commit for commit in repo.iter_commits(paths=paths_restriction,rev=branchs, **kwargs) if commit.hexsha not in filter]
+        commits=[commit for commit in repo.iter_commits(paths=paths_restriction,rev=branchs, **kwargs)]
     else:
-        commits=[repo.rev_parse(commit,rev=branchs) for commit in commits if commit not in filter]
+        commits=[repo.rev_parse(commit) for commit in commits]
     for commit in commits:
-        yield commit
+        if not any(commit.hexsha.startswith(filter_comm) for filter_comm in filter):
+            yield commit
 
-def git_get_head(path):
-    """Return head of current repo of given path"""
-    repo = git.Repo(repo_path, search_parent_directories=True)
-    return repo.head
+
+
+def get_repo(path):
+    """Return parent git repo"""
+    return git.Repo(path, search_parent_directories=True)
+
+def diffs(paths,repo=None):
+    """Return diffs with given tree and working_dir. """
+    if repo==None:
+        repo= git_get_repo(path)
+    paths=[os.path.relpath(path, start = repo.working_dir) for path in paths]
+    tree=repo.head.commit.tree
+    diffs= tree.diff(None, paths=paths)
+    return diffs
+
+
+
+
+
 
 
 
