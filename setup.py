@@ -11,7 +11,7 @@ setuptools.setup(
     author_email="author@example.com",
     description="Python package to manipulate kvhf files",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type='text/markdown',
     url="https://github.com/crazyhouse33/kvhf.git",
     packages=setuptools.find_packages(),
     classifiers=[

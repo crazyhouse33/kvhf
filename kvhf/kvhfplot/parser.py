@@ -6,30 +6,33 @@ parser = argparse.ArgumentParser("kvhfplot is an utility to generate graphs from
 
 parser.add_argument('-V','--version', action='version', version=version)
 
-parser.add_argument('file', metavar='FILE',nargs='+', action="append", help="The files to plot, if more that one given operate on the concatenation of them")
+parser.add_argument('file', metavar='FILES',nargs='+',help="The files to plot, if more that one given operate on the concatenation of them")
 
-parser.add_argument('-k', '--keys', action='append', nargs='*',
+parser.add_argument('-k', '--keys', action='append', default=[],
                     help='List of regexps. If a key match one of the regexp, it \'s plotted unless matched by a filter. If not provided every key is ploted')
 
 
-parser.add_argument('-l', '--labels', action='append', nargs='*',
+parser.add_argument('-l', '--labels', action='append',default=[],
                     help='List of regexp. If a label match one of the regexps, it\'s plotted unless matched by a filter. If not provided every label is ploted')
 
-parser.add_argument('-L', '--labels_filter', action='append', nargs='*',
+parser.add_argument('-L', '--labels_filter', action='append',default=[],
                     help='List of regexp. If a label match one of the regexps, it wont be plotted ')
 
-parser.add_argument('-K', '--keys-filter', action='append', nargs='*',
+parser.add_argument('-K', '--keys-filter', action='append', default=[],
                     help='List of regexps. If a key match one of the regexp, it wont be plotted')
 parser.add_argument('--sep-key', type=str,
                     help='Character separating the key and the values')
 parser.add_argument('--sep-val', type=str,
                     help='Character separating the values')
 
-parser.add_argument('-u', '--unity', action='append', nargs='*',
+parser.add_argument('-u', '--unity', action='append', nargs='*',default=[],
                     help='List of regexps. Keys that dont have an unity matching one of the regexps wont be ploted.')
 
 parser.add_argument('-o', '--out-path',
-                    help='Path of the created image')
+                    help='Path of the created image. If none plot the image without saving it.')
+
+parser.add_argument('-p', '--plot',
+                    help='Plot image even if you precise an output file as well')
 
 parser.add_argument('-f', '--out-format',
                     help='Format of the created image')
@@ -53,18 +56,6 @@ def getArgs(string=None):  # we allow string for testing purpose
     args = vars(args)
 
     
-
-    parsedKeys = parseMultiOptions(args['keys'])
-    args['keys'] = parsedKeys
-    parsedFiles= parseMultiOptions(args['file'])
-    args['file']=parsedFiles
-    parsedLabels = parseMultiOptions(args['labels'])
-    args['labels'] = parsedKeys
-
-    parsedKeysFilters = parseMultiOptions(args['keys_filter'])
-    args['keys_filter'] = parsedKeysFilters
-    parsedLabelsFilters = parseMultiOptions(args['labels_filter'])
-    args['labels_filter'] = parsedLabelsFilters
     parsedUnity = parseMultiOptions(args['unity'])
     args['unity'] = parsedUnity
     return args

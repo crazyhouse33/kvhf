@@ -159,6 +159,7 @@ tags
 
 #images
 *.svg
+!images/*
 #random bad organization stuff (should be in test/out)
 tests/test_work_dir/add_test.hdf
 tests/test_work_dir/extract_test.hkvf

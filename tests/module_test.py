@@ -41,12 +41,12 @@ def test_merge_vertical():
 
 def test_plot():
     histo_full=KVH_file("test_all_print.hdf")
-    histo_full.plot()
-    pyplot.show(block=False)
+    histo_full.draw_history()
+    pyplot.plot()
 
     histo1= KVH_file("test_data123.hdf")
-    histo1.plot(keys=[x for x in histo1.dico.keys() if x!="computing images"])
-    histo1.pie_plot(keys=[x for x in histo1.dico.keys() if x!="computing images"])
+    histo1.draw_history(keys=[x for x in histo1.dico.keys() if x!="computing images"])
+    histo1.draw_pie(keys=[x for x in histo1.dico.keys() if x!="computing images"])
 
 def test_dump():
     histo_full=KVH_file("test_all_print.hdf")

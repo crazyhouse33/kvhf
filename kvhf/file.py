@@ -2,6 +2,7 @@ import matplotlib.pyplot as pyplot
 from warnings import warn
 from collections import defaultdict
 from kvhf.stat import Serie_stats
+from lib.ppath import prepare_path, open_mkdir
 
 
 class KVH_file:
@@ -47,7 +48,7 @@ class KVH_file:
             value_sep=self.value_sep
 
         if type(file)==str:
-            file = open(file,"w")
+            file = open_mkdir(file,"w")
 
         #dump labels
         if self.labels:
@@ -149,17 +150,11 @@ class KVH_file:
     def labels_to_pos(self, labels):
         return [self.labels.index(label) for label in labels]
 
-    def plot(self, keys=None, path=None, format=None, ylabel=None, pos=None):
+    def draw_history(self, keys=None, ylabel=None, pos=None):
         """Plot on same graph every values of given keys (all by default)"""
         if ylabel==None:
             ylabel=""
 
-        if path== None:
-            path="kvh_plot.svg"
-
-        if format==None:
-            format="svg"
-        
         if pos==None:
             pos=range(len(self.labels))
 
@@ -178,10 +173,9 @@ class KVH_file:
             self.dico[key].plot(key, pos)
 
         pyplot.legend()
-        pyplot.savefig(path,format=format)
 
 
-    def pie_plot(self, keys=None, path="kvh_pie_plot.svg", format="svg",  label=None, it=-1):
+    def draw_pie(self, keys=None, label=None, it=-1):
         """Plot pie chart of last values of given keys (all by default) at the version given either by the label, either by the index. By default last label is used"""
         if keys ==None:
             keys=self.dico.keys()
@@ -193,7 +187,15 @@ class KVH_file:
 
         pyplot.figure()
         pyplot.pie(values, labels=keys)
-        pyplot.savefig(path, format=format)
+
+    def save_img(self, path, format=None):
+        if format==None:
+            format='svg'
+        prepare_path(path)
+        pyplot.savefig(path,format=format)
+
+    def plot(self):
+        pyplot.show(block=False)
 
     
     def __eq__(self, other):

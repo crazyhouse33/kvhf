@@ -35,11 +35,14 @@ run time: 9,7,6
 -mins: 4,5,4
 ```
 
-Then the command 
+Then the command  
 ```bash
-
+kvhfplot.py file 
 ``` 
-will output this image.
+
+will output the plot this image:
+
+![Drag Racing](Dragster.jpg)
 
 If your selection match only one label, it switch to pie chart mode, such as in this exemple:
 
@@ -109,9 +112,10 @@ kvhutil -g -c $(git rev-list src/executor.c io.c --reverse)
 
 
 # Libs
-The package expose python modules that you may use:
-1. Obviously a module to manipulate kvhf file ( kvhf.file and kvhf.stat )
-2. Wrapper simplifying gitpython interface to facilitate repository exploration.
+The package expose python modules that you may find usefull:
+1. Obviously modules to manipulate kvhf file ( kvhf.file and kvhf.stat )
+2. Wrapper simplifying gitpython interface to facilitate repository exploration(lib.gfe)
+3. Some convenients functions to open files even if parents directory does not exist (lib.ppath)
 
 # Warning
 I did kvhf because I felt the need for it for another project. I built it quicquely and put it on github. I tried to do something powerfull but all the edges features are not tested. I am sure if you try to mess around with features you can read in the help option and not presented here you can encounter some bugs. Pull request accepted :)

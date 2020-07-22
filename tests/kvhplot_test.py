@@ -23,6 +23,11 @@ def test_crash():
     dont_crash( prefix+ 'test_data123.hdf test_data145.hdf -u tatata')
     dont_crash( prefix+ 'test_data123.hdf test_data145.hdf -u tatata -l commit1 -l commit2 -L commit2')
     dont_crash(prefix+  'test_data123.hdf test_data145.hdf -u tatata -l commit1 -l commit2 -L commit2 -k "loading time"')
+    dont_crash(prefix+  'example.hdf -o ../../images/hist.svg')
+    dont_crash(prefix+  'example.hdf -l t1 -o ../../images/hist_pie.svg')
+
+    assert os.path.isfile('../../images/hist_pie.svg')
+    assert os.path.isfile('../../images/hist.svg')
 
 
 def test_keys():
