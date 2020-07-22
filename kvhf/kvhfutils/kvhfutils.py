@@ -22,7 +22,7 @@ git_extract=args['git_extract']
 commits_manual_selection=args['commits']
 git_actualized_label=args['git_actualized_label']
 merge=args["merge"]
-extend_history=args["extend_history"]
+extend_history=args["extend"]
 forbiden_commits = args["commit_filter"]
 branchs=args['branchs']
 paths_restrict=args['path_restrict']
@@ -99,9 +99,12 @@ else:
         except ValueError:#There is no commit
             sys.exit(0)
 
-
         for path in paths:
             current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
+            if not current_file.labels:
+                sys.exit("Error: "+ path + " have no label")
+
+
             old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)
             if current_file.labels[-1] == old_file.labels[-1]:
                 sys.exit("Error: "+ path + " have the same label than in the previous commit")

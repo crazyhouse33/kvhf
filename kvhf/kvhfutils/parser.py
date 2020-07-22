@@ -13,7 +13,7 @@ parser.add_argument('-o', '--out-path',
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-m', '--merge', action='store_true', help= 'Merge FILES vertically and store result in output file')
-group.add_argument('-e', '--extend_history', action='store_true', help= 'Merge FILES horizontally and store result in output file')
+group.add_argument('-e', '--extend', action='store_true', help= 'Merge FILES horizontally and store result in output file')
 group.add_argument('-k', '--keys', action='append',nargs='*',
         help='If the option is alone, list of key=values you want to add to a file. If key allready exist, append values to it. If the option is not alone, specify subset of keys you want to work with.')
 group.add_argument('-a', '--git-actualized-label', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit).')
