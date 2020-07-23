@@ -42,11 +42,16 @@ kvhfplot.py file
 
 will output the plot this image:
 
-![Drag Racing](Dragster.jpg)
+![Normal mode](images/hist.svg)
 
-If your selection match only one label, it switch to pie chart mode, such as in this exemple:
+If your selection match only one label, it switch to pie chart mode:
+```bash
+kvhfplot.py file -l t1
+```
+![Pie mode](images/hist_pie.svg)
 
-Run kvhfplot.py -h to get more details about how to control what is being plotted
+
+Run kvhfplot.py -h to get more details about how to control what is being plotted (add title, choose keys...)
 
 # Continious Integration and KVHF
 

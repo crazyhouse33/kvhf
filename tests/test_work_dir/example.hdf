@@ -1,10 +1,10 @@
 #t1:t2:t3
 
 building time: 5,  6,7
--maxs:         6, 10, 11
--mins:         4,  5, 6
--stdevs:       1,  2, 3
+-maxs:         6, 8, 9
+-mins:         4,  4, 5
+-stdevs:       1,  1, 0.5
 -unity: sec
 
-run time: 9,7,6
--mins: 4,5,4
+run time: 20,17,15
+-mins: 18,16,13

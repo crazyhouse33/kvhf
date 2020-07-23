@@ -2,6 +2,7 @@ from warnings import warn
 from collections import defaultdict
 
 import matplotlib.pyplot as pyplot
+pyplot.style.use('seaborn-dark')
 
 
 class Serie_stats:
@@ -33,16 +34,16 @@ class Serie_stats:
             label += " ("+substat.unity+")"
 
         if substat.stdevs:
-            base_line=pyplot.errorbar(pos,substat.means,yerr=substat.stdevs, label=label).lines[0]
+            base_line=pyplot.errorbar(pos,substat.means,yerr=substat.stdevs, label=label, capsize=2,fmt='o').lines[0]
         else:
             base_line, = pyplot.plot(substat.means, label=label)
 
         current_color=base_line.get_color()
         if substat.maxs:
-            pyplot.fill_between (pos, substat.maxs, substat.means,alpha=0.3,color=current_color )
+            pyplot.fill_between (pos, substat.maxs, substat.means,alpha=0.15,color=current_color )
 
         if substat.mins:
-            pyplot.fill_between (pos,substat.mins ,substat.means, alpha=0.3, color=current_color)
+            pyplot.fill_between (pos,substat.mins ,substat.means, alpha=0.15, color=current_color)
 
         
     def __str__(self):
