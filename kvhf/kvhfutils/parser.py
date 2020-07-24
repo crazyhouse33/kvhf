@@ -16,7 +16,10 @@ group.add_argument('-m', '--merge', action='store_true', help= 'Merge FILES vert
 group.add_argument('-e', '--extend', action='store_true', help= 'Merge FILES horizontally and store result in output file')
 group.add_argument('-k', '--keys', action='append',nargs='*',
         help='If the option is alone, list of key=values you want to add to a file. If key allready exist, append values to it. If the option is not alone, specify subset of keys you want to work with.')
-group.add_argument('-a', '--git-actualized-label', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit).')
+group.add_argument('-a', '--actualized', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit).')
+group.add_argument('-l', '--lock', action='store_true', help='Marks FILES as regenerated and thus making them possibly pass the actualized option')
+group.add_argument('-r', '--reset-lock', action='store_true', help='Reset every lock')
+
 
 group.add_argument('-g', '--git-extract',  action='store_true',help="""Switch to git extraction mode. 
 
@@ -24,6 +27,8 @@ The FILES argument will be searched in every given git commits and will be merge
         kvhutil -g -c $(git rev-list FILE --reverse)  
         To aglomerate only the commits touching FILE in the chronological order. 
         """)
+
+
 parser.add_argument('-b', "--branchs", help= "Branchs where to get the commits if COMMITS unspecified, can be many branch if space separated")
 parser.add_argument('-C', "--commit-filter",nargs='*',action='append', help= "Removes commits that starts by one of the given hash begins")
 parser.add_argument('-c', "--commits",action= 'append', metavar='COMMITS', nargs='*', help= "Manually select commits. Doing so desactivate some other filter options.")

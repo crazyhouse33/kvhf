@@ -77,7 +77,8 @@ According to your build system, create a script or a target that create that com
 ex:
 ```bash
 kvhfutils per_commit_resume.kvf -k exe_size: $(du bin/myexe) -k exe_size:unity:Mo
-kvhfutils per_commit_resume.kvf -k exe_size: $(du bin/myexe) -k exe_size:unity:Mo
+kvhfutils per_commit_resume.kvf -k exec_time: $(TIMEFMT=%R; time the_perf_test >/dev/null) -k exec_time:unity:ms
+kvhfutils per_commit_resume.kvf -l #Locking file to prevent commiting without reloading it
 ``` 
 
 ## Commits hooks
@@ -89,16 +90,27 @@ This step is not mandatory to use kvhf but you are guaranted (if you are human) 
 1. Forgeting to rerun your first step script to overide the per\_commit\_resume file
 2. Forgeting to put a label on the new per\_commit\_resume file
 
-That's why you should integrate to your commits hooks the following actions:
-1. (pre-commit) kvhfutils --git-actualized-label per\_commit\_resume 
 
-This will check that the label of the file is existing and not the same as the previous commit one. Forcing you to edit (and to think seriously about it) the label before commiting the change. 
+That's why you should integrate to your commits hooks the following 3 actions:
 
-2. (pre-commit) kvhfutils -o accumulator.kvhf  --extend accumulator.kvhf per\_commit\_resume
+### Preventing Labels Errors 
+
+```bash
+(pre-commit) kvhfutils --git-actualized-label per\_commit\_resume 
+```
+
+This will check that the label of the file is existing and not the same as the previous commit one. Forcing you to edit (and to think seriously about it) the label before commiting the change. This will also check than file had been locked for this commit(meanning you ran the production of the file)
+
+### Accumulate Resume
+```bash
+(pre-commit) kvhfutils -o accumulator.kvhf  --extend accumulator.kvhf per\_commit\_resume
+```
 
 This save the need to extract the whole history each time you want to plot it.
 
-3.(post-commit) rm per\_commit\_resume
+### Reset Lock State
+
+3.(post-commit) kvhf --reset-lock 
 
 This will make the next commit fail if you forgot to rerun the resume creation script.
 
@@ -114,7 +126,6 @@ You can also specify a list of commits. The labels will be extracted in given or
 ```bash
 kvhutil -g -c $(git rev-list src/executor.c io.c --reverse)
 ```
-
 
 # Libs
 The package expose python modules that you may find usefull:

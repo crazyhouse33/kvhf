@@ -166,3 +166,4 @@ tests/test_work_dir/extract_test.hkvf
 tests/test_work_dir/extract_test.kvhf
 tests/test_work_dir/merge_out.hkvf
 tests/test_work_dir/test_dump.hdf
+tests/test_work_dir/.done/
