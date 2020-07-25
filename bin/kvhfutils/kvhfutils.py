@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import parser
 import sys
 from kvhf.file import KVH_file

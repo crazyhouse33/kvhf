@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!/usr/bin/python3
 import parser
 from kvhf.file import KVH_file
 import re

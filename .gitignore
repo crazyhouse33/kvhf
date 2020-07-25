@@ -154,6 +154,7 @@ Sessionx.vim
 *~
 # Auto-generated tag files
 tags
+build
 # Persistent undo
 [._]*.un~
 

@@ -5,10 +5,11 @@ with open("README.md") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="kvhf", 
+    name="kvhf",
     version=version,
     author="Hugo A",
     author_email="author@example.com",
+    scripts=['bin/kvhfplot/kvhfplot.py', 'bin/kvhfutils/kvhfutils.py'],
     long_description_content_type='text/markdown',
     long_description=long_description,
     description="Python package to manipulate kvhf files",
