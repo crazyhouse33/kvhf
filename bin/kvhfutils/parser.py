@@ -11,7 +11,7 @@ parser.add_argument('-o', '--out-path',
                     help='Path of potential output')
 
 
-parser.add_argument('-s', "--not-interactive", help= "Just fail unstead of letting user input a new label.")
+parser.add_argument('-s', "--not-interactive", action='store_true',help= "Just fail unstead of letting user input a new label.")
 
 
 group = parser.add_mutually_exclusive_group()

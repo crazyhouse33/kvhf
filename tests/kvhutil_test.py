@@ -15,10 +15,10 @@ def remove(path):
 
 #should be dont fail
 def dont_crash(command_line):
-    assert os.system(command_line)==0
+    assert os.WEXITSTATUS(os.system(command_line))==0
 
 def crash(command_line):
-    assert os.system(command_line)!=0
+    assert os.WEXITSTATUS(os.system(command_line))!=0
 
 def test_merge():
     remove("merge_out.hkvf")
@@ -46,10 +46,13 @@ def test_add():
     assert f.dico["tata"].means==[18,18,45]
 
 def test_actualized():
-    crash(prefix + 'test_not_actualized/test -a')
-    crash(prefix + 'test_not_actualized/test test_actualized -a')
-    dont_crash(prefix  + 'test_actualized/test -a')
-    dont_crash(prefix  + 'test_new/test -a')
+    dont_crash(prefix + 'test_new/test -a -s')
+    dont_crash(prefix  + 'test_actualized/test -a -s')
+
+
+    crash(prefix + 'test_not_actualized/test.hdf -a -s')
+    crash(prefix + 'test_not_actualized/test.hdf test_actualized -a -s')
+
     
 def test_extract():
     remove("extract_test.kvhf")

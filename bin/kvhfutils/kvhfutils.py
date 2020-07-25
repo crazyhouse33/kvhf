@@ -2,7 +2,6 @@ import parser
 import sys
 from kvhf.file import KVH_file
 import lib.gfe as gfe
-from lib.done import Done_file
 
 
 def str_commit(commit, number_message_letter):
@@ -57,6 +56,7 @@ not_interactive=args['not_interactive']
 
   
 
+
 if merge:
     merge_handle(paths, out_path, vertical=True, keys=keys)
     
@@ -86,8 +86,9 @@ elif keys:
 else:
     if not paths:
         sys.exit("At least one file to extract must be given in order to localize git repo")
-    repo= gfe.get_repo(paths[0])
     if git_extract:
+        
+        repo= gfe.get_repo(paths[0])
         res= KVH_file(key_sep=sep_key, value_sep= sep_val)
         for commit in gfe.explore_commits(repo, commits=commits_manual_selection, filter=forbiden_commits, branchs=branchs, paths_restrict=paths_restrict,reverse=True):
             files = commit.search_files(paths)
@@ -108,11 +109,7 @@ else:
         res.dump(out_path)
 
     elif git_actualized_label:
-        try:
-            head= repo.head.commit
-        except ValueError:#There is no commit
-            print("New repository detected, pass checks")
-            sys.exit()
+        
 
         for path in paths:
             current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
@@ -120,9 +117,15 @@ else:
             if not current_file.labels:
                 user_label=input("No label detected for "+ path)
 
+            try:
+                repo=gfe.get_repo(path)
+                head=repo.head.commit
+            except Exception:#There is no commit for this path so its new
+                continue
+
             old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)
             if current_file.labels[-1] == old_file.labels[-1]:
-                user_label=input("The label of "+ path + "did not change since last commit")
+                user_label=input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
                 current_file.dump(path)
