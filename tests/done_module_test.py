@@ -2,7 +2,7 @@ from lib.done import Done_file
 import os
 import pytest
 
-Done_file.init_done_repo('.done')
+Done_file.init_done_dir('.done')
 done_file= Done_file()
 done_file.set_done(['hey', 'ho','no'])
 done_file.save()

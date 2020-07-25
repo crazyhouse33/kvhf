@@ -1,10 +1,9 @@
 import os
 import pytest
-import kvhf.kvhfplot.kvhfplot as plot
 from kvhf.file import KVH_file
 
 
-path= '../../kvhf/kvhfutils'
+path= '../../bin/kvhfutils'
 prefix='PYTHONPATH='+path+':../.. python3 '+ path+'/kvhfutils.py '
 
 def remove(path):

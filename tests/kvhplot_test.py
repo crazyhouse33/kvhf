@@ -1,10 +1,10 @@
 import os
 import pytest
-import kvhf.kvhfplot.kvhfplot as plot
+import bin.kvhfplot.kvhfplot as plot
 from kvhf.file import KVH_file
 
 
-path= '../../kvhf/kvhfplot'
+path= '../../bin/kvhfplot'
 prefix='PYTHONPATH='+path+':../.. python3 '+ path+'/kvhfplot.py '
 
 def selection_keys_t(kvh_file,keys, filter, unity, expected):

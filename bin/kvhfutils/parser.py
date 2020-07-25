@@ -11,15 +11,15 @@ parser.add_argument('-o', '--out-path',
                     help='Path of potential output')
 
 
+parser.add_argument('-s', "--not-interactive", help= "Just fail unstead of letting user input a new label.")
+
+
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-m', '--merge', action='store_true', help= 'Merge FILES vertically and store result in output file')
 group.add_argument('-e', '--extend', action='store_true', help= 'Merge FILES horizontally and store result in output file')
 group.add_argument('-k', '--keys', action='append',nargs='*',
         help='If the option is alone, list of key=values you want to add to a file. If key allready exist, append values to it. If the option is not alone, specify subset of keys you want to work with.')
-group.add_argument('-a', '--actualized', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit).')
-group.add_argument('-l', '--lock', action='store_true', help='Marks FILES as regenerated and thus making them possibly pass the actualized option')
-group.add_argument('-r', '--reset-lock', action='store_true', help='Reset every lock')
-
+group.add_argument('-a', '--actualized', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit) and regeneration of FILES had been done.')
 
 group.add_argument('-g', '--git-extract',  action='store_true',help="""Switch to git extraction mode. 
 

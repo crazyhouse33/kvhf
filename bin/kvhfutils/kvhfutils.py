@@ -2,6 +2,7 @@ import parser
 import sys
 from kvhf.file import KVH_file
 import lib.gfe as gfe
+from lib.done import Done_file
 
 
 def str_commit(commit, number_message_letter):
@@ -10,26 +11,11 @@ def str_commit(commit, number_message_letter):
        message+="..." 
     return " ".join([commit.hexsha,':',message])
 
-
-args= parser.getArgs()
-
-paths = args["files"]
-out_path=args["out_path"]
-sep_key = args["sep_key"] 
-sep_val=args["sep_val"]
-keys=args["keys"]
-git_extract=args['git_extract']
-commits_manual_selection=args['commits']
-git_actualized_label=args['git_actualized']
-merge=args["merge"]
-extend_history=args["extend"]
-forbiden_commits = args["commit_filter"]
-branchs=args['branchs']
-paths_restrict=args['path_restrict']
-dirty=args['dirty']
-lock=args['lock']
-
-
+def my_input(msg):
+    if not_interactive:
+        return input(msg+'.\n\nPlease enter a new label in the prompt:')
+    else:
+        sys.exit(msg)
 
 def merge_handle(paths, output, vertical=True, keys=None):
     res=KVH_file(key_sep=sep_key, value_sep= sep_val)
@@ -43,32 +29,32 @@ def merge_handle(paths, output, vertical=True, keys=None):
         the_function(file_to_merge,keys)
     res.dump(out_path)
 
-def files_have_actualized_label(repo,paths):
-     try:
-            head= repo.head.commit
-        except ValueError:#There is no commit
-            return True, "New repository"
-
-        for path in paths:
-            current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
-            if not current_file.labels:
-                return False, path + " have no label"
-
-            old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)
-            if current_file.labels[-1] == old_file.labels[-1]:
-                 return False, path + " have the same label than in the previous commit")
-            else:
-                return True, "Every given path is have actualized labels"
-
-def find_lock_file():
 
 
-def ready(action):
-    try:
-        with open('.kvhf_locks') as lock_file:
+args= parser.getArgs()
 
-    except FileNotFoundError:
-        return False, "Could not find .kvhf_locks"
+paths = args["files"]
+out_path=args["out_path"]
+sep_key = args["sep_key"] 
+sep_val=args["sep_val"]
+keys=args["keys"]
+git_extract=args['git_extract']
+commits_manual_selection=args['commits']
+git_actualized_label=args['actualized']
+merge=args["merge"]
+extend_history=args["extend"]
+forbiden_commits = args["commit_filter"]
+branchs=args['branchs']
+paths_restrict=args['path_restrict']
+dirty=args['dirty']
+not_interactive=args['not_interactive']
+
+
+
+
+     
+
+
   
 
 if merge:
@@ -122,10 +108,26 @@ else:
         res.dump(out_path)
 
     elif git_actualized_label:
-        is_actualized, msg= file_have_actualized_label(repo, paths)
-        if is_actualized:
-            sys.exit(0,msg)
-        else:
-            sys.exit(msg)
+        try:
+            head= repo.head.commit
+        except ValueError:#There is no commit
+            print("New repository detected, pass checks")
+            sys.exit()
+
+        for path in paths:
+            current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
+            user_label=None
+            if not current_file.labels:
+                user_label=input("No label detected for "+ path)
+
+            old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)
+            if current_file.labels[-1] == old_file.labels[-1]:
+                user_label=input("The label of "+ path + "did not change since last commit")
+            if user_label:
+                current_file.labels.append(user_label)
+                current_file.dump(path)
+
+
+
 
 
