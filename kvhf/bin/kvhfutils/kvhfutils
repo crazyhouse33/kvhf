@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import parser
+import kvhf.bin.kvhfutils.parser as parser
 import sys
 from kvhf.file import KVH_file
 import kvhf.libs.gfe as gfe

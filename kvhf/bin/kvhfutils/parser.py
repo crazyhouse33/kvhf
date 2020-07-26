@@ -1,6 +1,6 @@
 import argparse
 import shlex
-from meta import version
+from kvhf.meta import version
 
 parser = argparse.ArgumentParser(description="kvhfutils is an utility to manipulate kvf files to facilitate automatic integration.")
 

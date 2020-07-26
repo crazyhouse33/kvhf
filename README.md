@@ -52,21 +52,21 @@ run time: 9,7,6
 
 Then the command
 ```bash
-kvhfplot.py file
+kvhfplot file
 ```
 
 will output the plot this image:
 
-![Normal mode](distrib/images/hist.svg)
+![Normal mode](dev/data/images/hist.svg)
 
 If your selection match only one label, it switch to pie chart mode:
 ```bash
-kvhfplot.py file -l t1
+kvhfplot file -l t1
 ```
-![Pie mode](distrib/images/hist_pie.svg)
+![Pie mode](dev/data/images/hist_pie.svg)
 
 
-Run kvhfplot.py -h to get more details about how to control what is being plotted (add title, choose keys...)
+Run kvhfplot -h to get more details about how to control what is being plotted (add title, choose keys...)
 
 ## Continious Integration and KVHF
 
@@ -131,13 +131,13 @@ This save the need to extract the whole history each time you want to plot it.
 
 The process of choosing wich labels to plot can be tedious even with the regexp selection/filter. Alternatively you can use kvhfutils -g to extract a kvhf file from given commits only. Here you have this commit view that allow you to select commits that modified a particular set of file such as in the following exemple:
 ```bash
-kvhfutils.py --git-extract --path-restrict src/executor.c -p io.c -o important_changes.kvhf
+kvhfutils --git-extract --path-restrict src/executor.c -p io.c -o important_changes.kvhf
 ```
 
 You can also specify a list of commits. The labels will be extracted in given order. You can achieve the same results as previous command with:
 
 ```bash
-kvhutil -g -c $(git rev-list src/executor.c io.c --reverse)
+kvhfutils -g -c $(git rev-list src/executor.c io.c --reverse)
 ```
 
 ## Warning

@@ -1,6 +1,6 @@
 import argparse
 import shlex
-from meta import version
+from kvhf.meta import version
 
 parser = argparse.ArgumentParser("kvhfplot is an utility to generate graphs from kvhf files.")
 

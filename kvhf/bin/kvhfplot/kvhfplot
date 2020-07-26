@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import parser
+import kvhf.bin.kvhfplot.parser as parser
 from kvhf.file import KVH_file
 from kvhf.bin.kvhfplot.selection import *
 
