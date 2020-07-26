@@ -4,6 +4,7 @@ from meta import version
 with open("README.md") as fh:
     long_description = fh.read()
 
+
 setuptools.setup(
     name="kvhf",
     version=version,
@@ -14,7 +15,7 @@ setuptools.setup(
     long_description=long_description,
     description="Python package to manipulate kvhf files",
     url="https://github.com/crazyhouse33/kvhf.git",
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",

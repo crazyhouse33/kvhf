@@ -57,13 +57,13 @@ kvhfplot.py file
 
 will output the plot this image:
 
-![Normal mode](images/hist.svg)
+![Normal mode](distrib/images/hist.svg)
 
 If your selection match only one label, it switch to pie chart mode:
 ```bash
 kvhfplot.py file -l t1
 ```
-![Pie mode](images/hist_pie.svg)
+![Pie mode](distrib/images/hist_pie.svg)
 
 
 Run kvhfplot.py -h to get more details about how to control what is being plotted (add title, choose keys...)

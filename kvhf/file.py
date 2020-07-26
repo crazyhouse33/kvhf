@@ -1,8 +1,8 @@
 import matplotlib.pyplot as pyplot
 from warnings import warn
 from collections import defaultdict
-from kvhf.stat import Serie_stats
-from lib.ppath import prepare_path, open_mkdir
+from kvhf.history_entry import Serie_stats
+from kvhf.libs.ppath import prepare_path, open_mkdir
 
 
 class KVH_file:

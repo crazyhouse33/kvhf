@@ -1,10 +1,11 @@
+
 import os
 import pytest
 from kvhf.file import KVH_file
 
 
-path= '../../bin/kvhfutils'
-prefix='PYTHONPATH='+path+':../.. python3 '+ path+'/kvhfutils.py '
+path= '../../kvhf/bin/kvhfutils'
+prefix='PYTHONPATH='+path+':../.. python3 '+ path+'/kvhfutils '
 
 def remove(path):
     try:

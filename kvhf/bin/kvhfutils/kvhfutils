@@ -2,7 +2,7 @@
 import parser
 import sys
 from kvhf.file import KVH_file
-import lib.gfe as gfe
+import kvhf.libs.gfe as gfe
 
 
 def str_commit(commit, number_message_letter):

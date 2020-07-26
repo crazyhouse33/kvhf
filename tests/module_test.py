@@ -1,5 +1,5 @@
 from kvhf.file import KVH_file
-from kvhf.stat import Serie_stats 
+from kvhf.history_entry import Serie_stats 
 from collections import defaultdict
 import matplotlib.pyplot as pyplot
 import pytest

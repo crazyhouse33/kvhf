@@ -1,8 +1,5 @@
-#!/usr/bin/python3
-import parser
-from kvhf.file import KVH_file
 import re
-
+#This fragmentation is a hav
 def select_keys(kvh_file, keys, keys_filter, unity):
     """Given a list of regexp string of wanted keys, unwanted key, an wanted unity, retrieve list of matching keys in a kvhf file"""
 
@@ -23,50 +20,3 @@ def select_pos(kvh_file, labels, labels_filter):
         not any(regex.match(label) for regex in labels_filter_reg)
         ]
     return kvh_file.labels_to_pos(matching_labels)
-#We need to import the module for testing the two upper functions
-if __name__ == "__main__":
-
-    args= parser.getArgs()
-
-    paths= args["file"]
-    sep_key = args["sep_key"] 
-    sep_val=args["sep_val"]
-    keys=args["keys"]
-    keys_filter= args["keys_filter"]
-    labels = args["labels"]
-    labels_filter=args["labels_filter"]
-    ylabel = args["y_label"]
-    unity=args["unity"]
-    out_path=args['out_path']
-    out_format= args['out_format']
-    plot= args['plot']
-
-    the_file= KVH_file(paths[0], key_sep=sep_key, value_sep=sep_val)
-    for path in paths[1::]:
-        f= KVH_file(path, key_sep=sep_key, value_sep=sep_val)
-        the_file.merge_vertical(f)
-     
-    matched_keys = select_keys(the_file, keys, keys_filter, unity)
-
-    pos = select_pos(the_file, labels, labels_filter)
-
-    if len(pos) == 1:
-        the_file.draw_pie(matched_keys, it=pos[0])
-    else:
-        the_file.draw_history(matched_keys, ylabel, pos)
-
-    if out_path:        
-        the_file.save_img(out_path, out_format)
-    
-    if not out_path or plot:
-        the_file.plot()
-
-    
-
-
-
-
-
-
-        
-        
