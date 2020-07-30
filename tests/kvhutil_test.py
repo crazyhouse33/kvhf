@@ -57,7 +57,7 @@ def test_actualized():
     
 def test_extract():
     remove("extract_test.kvhf")
-    dont_crash( prefix + ' -o extract_test.kvhf extract_test/test -g ' )
+    dont_crash( prefix + ' -o extract_test.kvhf extract_test/test -g' )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label1','label2','label3','label4']
 
@@ -65,23 +65,23 @@ def test_extract():
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label1','label2','label3','label4', 'label5']
 
-    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -C ff56'  )
+    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -C 73b8'  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label1','label3','label4']
 
-    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -C ff56 -d'  )
+    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -C 73b8 -d'  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label1','label3','label4','label5']
 
-    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c ff56'   )
+    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c 73b8'   )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label2']
 
-    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c ff56 913f8'  )
+    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c 73b8 b12f'  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label2','label3','label4']
 
-    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c ff56 913f8 -C ff56'  )
+    dont_crash( prefix + ' -o extract_test.kvhf -g extract_test/test -c 73b8 b12f -C 73b8'  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== ['label3','label4']
 

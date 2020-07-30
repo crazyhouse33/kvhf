@@ -38,7 +38,7 @@ A KVHF file is composed from 3 kinds of entity, separated by lines
 You can use kvhfplot as an easy way to plot data. Imagine you have following file:
 
 ```
-#t1:t2:t3
+#t1,this part is used only for label filetering:t2,t3
 
 building time: 5,  6,7
 -maxs:         6, 10, 11
@@ -74,12 +74,12 @@ The plotter come with utilities to facilitate integration of KVHF continious int
 
 The recommended way to use kvhf in this purpose will be illustrated in following section. This will also serve as doc to use the package as a whole and wont expose every functionnalities of every tool. You are invited to read the help option of every executable.
 
-The recommended way is to create a one label kvhf file per commit, and to merge with an accumulator at each commit. This way, in each commit, you have:
+The recommended way is to automatate of a kvhf file per commit, and to merge it with an accumulator. This way, in each commit, you have:
 
 1. A clean per commit resume file
 2. The accumulator to print the past
 
-Without the accumulator, you are gonna need to extract a kvhf from the git history trought kvhfutils --git-extract (see later). But extracting is gonna be slower and slower for every commits.
+Without the accumulator, you are gonna need to extract a kvhf from the git history trought kvhfutils --git-extract (see later) to produce history plotting. But extracting is gonna be slower and slower for every commits.
 
 ### Step 1: Script File Creation
 
@@ -87,13 +87,15 @@ First, you need a way to automate a per commit kvhf file creation. For this you 
  1. kvhfutils -k to add keys or attribute to allready existing kvhf file.
  2. kvhfutils -m to combine keys of two allready existing kvhf files.
  3. A third party software that produce kvhf files (eprof)
+ 4. kvhfutils -v to check than the file is perfectely formated and dont contain abnormalies
+
 
 According to your build system, create a script or a target that create that commit resume thanks to those tools. Lets call this generate.bash
 
 ex:
 ```bash
-kvhfutils per_commit_resume.kvf -k exe_size: $(du bin/myexe) -k exe_size:unity:Mo
-kvhfutils per_commit_resume.kvf -k exec_time: $(TIMEFMT=%R; time the_perf_test >/dev/null) -k exec_time:unity:ms
+kvhfutils per_commit_resume.kvf -k exe_size:$(du bin/myexe) -k exe_size:unity:Mo
+kvhfutils per_commit_resume.kvf -v -k exec_time:$(TIMEFMT=%R; time the_perf_test >/dev/null) -k exec_time:unity:ms
 ```
 
 
@@ -101,15 +103,15 @@ kvhfutils per_commit_resume.kvf -k exec_time: $(TIMEFMT=%R; time the_perf_test >
 
 In general you have to understand that changing labels coming from previous commits is going to be super annoying and dangerous (git rebase). And thus you must really be carefull with the choices of your labels.
 
-This step is not mandatory to use kvhf but you are guaranted (if you are human) to make the following mistakes one day:
+This step is not mandatory to use kvhf but any humans are guaranted to make the following mistakes one day:
 
 1. Forgeting to rerun your first step script to overide the per\_commit\_resume file
 2. Forgeting to put a label on the new per\_commit\_resume file
 3. Forgeting to merge the resume with the accumulator
 
-That's why you should integrate to your commits hooks the following 3 actions\:
+That's why you should integrate to your commits hooks the following 3 actions:
 
-#### 1 Forcing Regeneration of Resume
+#### 1 Forcing Regeneration of Resume File
 
 ```bash
 (pre-commit) generate.bash
@@ -129,6 +131,7 @@ This save the need to extract the whole history each time you want to plot it.
 
 ## Tricks
 
+### Other way of filtering commits
 The process of choosing wich labels to plot can be tedious even with the regexp selection/filter. Alternatively you can use kvhfutils -g to extract a kvhf file from given commits only. Here you have this commit view that allow you to select commits that modified a particular set of file such as in the following exemple:
 ```bash
 kvhfutils --git-extract --path-restrict src/executor.c -p io.c -o important_changes.kvhf
@@ -144,8 +147,7 @@ kvhfutils -g -c $(git rev-list src/executor.c io.c --reverse)
 I did kvhf because I felt the need for it for another project. I built it quicquely and put it on github. I tried to do something powerfull but all the edges features are not tested. I am sure if you try to mess around with features you can read in the help option and not presented here you can encounter some bugs. Pull request accepted :)
 
 ## TODO
-1. (BASIC) Good gestion of disapparing/appearing key during commits.
-2. (label selection) Label in two part, on that is not plotted (the other one is still use for searching labels)
+3. Allow to execute a command in each commit before extraction. That would allow to generate kvhf files of previous commits with the current generation script. For now you look for git rebase exec
 4. (plotting) Smarter way to choose the stale according to keys values
 3. (plotting) New attributes to plot?
 

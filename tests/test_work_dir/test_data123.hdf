@@ -1,4 +1,4 @@
-#commit 1:commit 2:commit 3
+#commit 1,commit 2,commit 3
 
 loading time: 10, 5, 6
 executable size: 400, 300, 250

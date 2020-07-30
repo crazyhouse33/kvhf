@@ -1,4 +1,4 @@
-#commit 1:commit 2:commit 3
+#commit 1,commit 2,commit 3
 
 loading time: 100, _, 60
 -maxs: 150, _, 80

@@ -62,7 +62,7 @@ class KVH_file:
 
         #dump labels
         if self.labels:
-            print ("#"+self.key_sep.join(self.labels), file=file)
+            print ("#"+self.value_sep.join(self.labels), file=file)
         
         #dump keys
         for key in keys:
@@ -126,7 +126,7 @@ class KVH_file:
             stats.means= self.parse_values(values_str)
 
     def parse_labels(self, line):
-            self.labels=line[1::].split(self.key_sep)
+            self.labels=line[1::].split(self.value_sep)
 
 
     def parse_file_name(self, path):
@@ -202,7 +202,10 @@ class KVH_file:
 
     def get_max_len(self):
         """Get Highest key"""
-        return  max([(key, len(serie)) for  key, serie in self.dico.items()],key=lambda x: x[1] )
+        keys_len_tuple=[(key, len(serie)) for  key, serie in self.dico.items()]
+        if not keys_len_tuple:
+            return 'NOKEY', 0
+        return  max(keys_len_tuple,key=lambda x: x[1] )
 
 
     def re_equilibrate(self,not_equilibred, target,left=False):
@@ -225,6 +228,11 @@ class KVH_file:
 
         values = [self.dico[key].means[it] for key in keys]
 
+        label=self.label_repr(self.labels[it])
+        if label:
+            title+= '({})'.format(label)
+
+
         KVH_file.draw_shared_prep(title)
         pyplot.pie(values, labels=keys)
 
@@ -237,7 +245,7 @@ class KVH_file:
             pos=range(len(self.labels))
 
 
-        labels = [self.labels[i] if i<len(self.labels) else '' for i in pos ]
+        labels = [self.label_repr(self.labels[i]) if i<len(self.labels) else '' for i in pos ]
 
 
         if  keys==None:
@@ -254,6 +262,10 @@ class KVH_file:
             self.dico[key].plot(key, pos)
 
         pyplot.legend()
+
+    def label_repr(self,label):
+        """Return the part that is supposed to be printed by the plotter in a label"""
+        return label.split(self.key_sep)[-1]
 
     def save_img(self, path, format=None):
         if format==None:
