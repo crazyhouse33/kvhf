@@ -11,12 +11,20 @@ parser.add_argument('-o', '--out-path',
                     help='Path of potential output')
 
 
-parser.add_argument('-s', "--not-interactive", action='store_true',help= "Just fail unstead of letting user input a new label.")
+parser.add_argument("--not-interactive", action='store_true',help= "Just fail unstead of letting user input a new label.")
+
+parser.add_argument("-v", "--check-file", action='store_true',help= "Check than kvhf files have no problem whatsoever, such as unalignated keys, missing labels, mathematic non senses in the atrributes...\n\n If this option is given in combinaison with another action, this will run the check on the outputed file. With the option --git-extract, this will run the check on every merged commit as well.")
+
+
+
+parser.add_argument("--allow-gone-key",nargs='*',action='append', help= "In combinaison with historic-merge, dont allow keys to disapear (which may mean something broke in the generation system).")
+
 
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('-m', '--merge', action='store_true', help= 'Merge FILES vertically and store result in output file')
 group.add_argument('-e', '--extend', action='store_true', help= 'Merge FILES horizontally and store result in output file')
+group.add_argument('-X', '--historic-merge', action='store_true', help= 'Merge two files horizontally.\n If new keys, the result will prepend the void value to them until this label. \nIf a key is gone, mark it as void value. ')
 group.add_argument('-k', '--keys', action='append',nargs='*',
         help='If the option is alone, list of key=values you want to add to a file. If key allready exist, append values to it. If the option is not alone, specify subset of keys you want to work with.')
 group.add_argument('-a', '--actualized', action='store_true',help='Exit status set to 0 if FILES have a different label than in the previous commit. (ie ready to commit) and regeneration of FILES had been done.')
@@ -37,7 +45,10 @@ parser.add_argument('--sep-key', type=str,default=':',
                     help='Character separating the key and the values')
 parser.add_argument('--sep-val', type=str,default=',',
                     help='Character separating the values')
+
+parser.add_argument("--void-char", type=str, default='_', help= "Character signifying that a value is unknown")
 parser.add_argument('-d', '--dirty', action='store_true', help= 'The current dirty tree will analyzed for extraction if modified')
+
 
 
 

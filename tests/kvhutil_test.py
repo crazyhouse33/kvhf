@@ -47,12 +47,12 @@ def test_add():
     assert f.dico["tata"].means==[18,18,45]
 
 def test_actualized():
-    dont_crash(prefix + 'test_new/test -a -s')
-    dont_crash(prefix  + 'test_actualized/test -a -s')
+    dont_crash(prefix + 'test_new/test -a')
+    dont_crash(prefix  + 'test_actualized/test -a ')
 
 
-    crash(prefix + 'test_not_actualized/test.hdf -a -s')
-    crash(prefix + 'test_not_actualized/test.hdf test_actualized -a -s')
+    crash(prefix + 'test_not_actualized/test.hdf -a ')
+    crash(prefix + 'test_not_actualized/test.hdf test_actualized -a ')
 
     
 def test_extract():
@@ -92,6 +92,25 @@ def test_extract():
     dont_crash( prefix + ' -o extract_test.kvhf -g test_new/test '  )
     f= KVH_file("extract_test.kvhf")
     assert f.labels== []
+
+def test_disapparing_apparing():
+
+    dont_crash( prefix + ' -o extract_test.kvhf -g test_apparing_disapparing/test.hdf '  )
+    f= KVH_file("extract_test.kvhf")
+    assert f.labels== ['1','2','3']
+    assert f.dico['key1'].means==[1.0,1.0,1.0]
+    assert f.dico['key2'].means==[2.0,None,4]
+    assert f.dico['key3'].means==[None,3,None]
+
+    dont_crash( prefix + ' -o extract_test.kvhf -g test_apparing_disapparing/test.hdf --allow-gone-key --check-file'  )
+    f= KVH_file("extract_test.kvhf")
+    assert f.labels== ['1','2','3']
+    assert f.dico['key1'].means==[1.0,1.0,1.0]
+    assert f.dico['key2'].means==[2.0,None,4]
+    assert f.dico['key3'].means==[None,3,None]
+
+
+
 
 
 

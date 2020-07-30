@@ -5,7 +5,7 @@ from kvhf.file import KVH_file
 import kvhf.libs.gfe as gfe
 
 
-def str_commit(commit, number_message_letter):
+def str_commit(commit, number_message_letter=20):
     message=commit.message[0:number_message_letter]
     if len(commit.message) >number_message_letter:
        message+="..." 
@@ -17,6 +17,7 @@ def my_input(msg):
     else:
         sys.exit(msg)
 
+
 def merge_handle(paths, output, vertical=True, keys=None):
     res=KVH_file(key_sep=sep_key, value_sep= sep_val)
     if vertical:
@@ -27,9 +28,22 @@ def merge_handle(paths, output, vertical=True, keys=None):
     for path in paths:
         file_to_merge=KVH_file(path,key_sep=sep_key, value_sep= sep_val)
         the_function(file_to_merge,keys)
-    res.dump(out_path)
+    output_file(res, out_path)
 
 
+def check(kvh_File, prefix=''):
+    problems=kvh_File.check_report()
+    if problems:
+        sys.exit(prefix+problems)
+
+
+def output_file(kvh_File, path):
+    if path==None:
+        path= "result.kvhf"
+        print ("Output path had been set to", path, "by default", file=sys.stderr)
+    if check_file:
+        check(kvh_File, "Detected problems in output file {}:\n".format(path))
+    kvh_File.dump(path)
 
 args= parser.getArgs()
 
@@ -48,16 +62,16 @@ branchs=args['branchs']
 paths_restrict=args['path_restrict']
 dirty=args['dirty']
 not_interactive=args['not_interactive']
+historic_merge=args["historic_merge"]
+allow_gone_key=args['allow_gone_key']
+check_file=args['check_file']
+void_str=args['void_char']
 
-
-
-
-     
-
+KVH_file.default_key_sep = sep_key
+KVH_file.default_value_sep =sep_val 
+KVH_file.default_void_str=void_str
 
   
-
-
 if merge:
     merge_handle(paths, out_path, vertical=True, keys=keys)
     
@@ -67,9 +81,9 @@ elif keys:
 
     for path in paths:
         try:
-            kvh_File= KVH_file(path, key_sep=sep_key, value_sep= sep_val)
+            kvh_File= KVH_file(path)
         except FileNotFoundError:
-            kvh_File=KVH_file(key_sep=sep_key, value_sep= sep_val)
+            kvh_File=KVH_file()
         for key in keys:
             split= key.split(sep_key)
 
@@ -82,38 +96,40 @@ elif keys:
             else:
                 sys.exit("Error, In key add mode, the keys should be in the form KEYNAME KEYSEP VALUE1 VALUESEP VALUE2 to add values to keys or KEYNAME KEYSEP ATTRIBUTE KEYSEP VALUE1 VALUESEP VALUE2... to add drawing attribute to an existant key ")
             where_to_extend.extend(kvh_File.parse_values(values))
-        kvh_File.dump(path)
+        output_file(kvh_File,path)
 
-else:
+elif git_extract or git_actualized_label:
     if not paths:
         sys.exit("At least one file to extract must be given in order to localize git repo")
     if git_extract:
         
         repo= gfe.get_repo(paths[0])
-        res= KVH_file(key_sep=sep_key, value_sep= sep_val)
+        res= KVH_file()
         for commit in gfe.explore_commits(repo, commits=commits_manual_selection, filter=forbiden_commits, branchs=branchs, paths_restrict=paths_restrict,reverse=True):
             files = commit.search_files(paths)
-            commit_kvh_file= KVH_file(key_sep=sep_key, value_sep= sep_val)
-            for file in files:
+            commit_kvh_file= KVH_file()
+            for path, file in files:
                 new_file=KVH_file(file, key_sep=sep_key, value_sep= sep_val)
-                commit_kvh_file.merge_vertical(new_file) 
+                if check_file:
+                    check(new_file, "Detected problem in commit {} at file {}:\n".format(str_commit(commit), path))
+                commit_kvh_file.merge_vertical(new_file,keys) 
             print ("Recolting commit", str_commit(commit,20), file=sys.stderr) 
-            res.merge_horizontal(commit_kvh_file)
+            res.merge_historic(commit_kvh_file,keys)
 
         #We got the commits, now we need to add current files if they is one dirty ones
         if dirty and gfe.diffs(paths, repo):
-            current_kvh_file= KVH_file(key_sep=sep_key, value_sep= sep_val)
+            current_kvh_file= KVH_file()
             for path in paths:
-                    to_merge=KVH_file(path, key_sep=sep_key, value_sep= sep_val)
-                    current_kvh_file.merge_vertical(to_merge)
-            res.merge_horizontal(current_kvh_file)
-        res.dump(out_path)
+                    to_merge=KVH_file(path)
+                    current_kvh_file.merge_vertical(to_merge,keys)
+            res.merge_horizontal(current_kvh_file, keys)
+        output_file(res,out_path)
 
     elif git_actualized_label:
         
 
         for path in paths:
-            current_file = KVH_file(path, key_sep=sep_key, value_sep= sep_val)
+            current_file = KVH_file(path)
             user_label=None
             if not current_file.labels:
                 user_label=input("No label detected for "+ path)
@@ -123,15 +139,37 @@ else:
                 head=repo.head.commit
             except Exception:#There is no commit for this path so its new
                 continue
-
-            old_file= KVH_file(head.search_files(path), key_sep=sep_key, value_sep= sep_val)
+            _, the_file=head.search_files(path)
+            old_file= KVH_file(the_file )
             if current_file.labels[-1] == old_file.labels[-1]:
                 user_label=input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
-                current_file.dump(path)
+                output_file(current_file,path)
+
+                
+elif historic_merge:
+    if not len(paths)==2:
+        sys.exit("An historical merge only work with two files as arguments")
+    past=KVH_file(path[0])
+    to_merge=KVH_file(paths[-1])
+    
+    olds, new=res.merge_historic(to_merge, keys)
+
+    if new:
+        print ("New detected keys:\n", "\n".join(new), file=sys.stderr)
+    if old:
+        print ("Old keys are now missing:\n", "\n".join(old), file=sys.stderr)
+        if not allow_gone_key:
+            sys.exit("Exiting cause --allow-gone-key is off")
+    output_file(res, out_path)
+ 
 
 
 
 
+elif check_file:
+    for path in paths:
+        kvh_File= KVH_file(path)
+        check(kvh_File, "Detected problem in file {}".format(path))
 

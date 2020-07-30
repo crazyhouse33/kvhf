@@ -20,11 +20,12 @@ parser.add_argument('-L', '--labels_filter', action='append',default=[],
 
 parser.add_argument('-K', '--keys-filter', action='append', default=[],
                     help='List of regexps. If a key match one of the regexp, it wont be plotted')
-parser.add_argument('--sep-key', type=str,
+parser.add_argument('--sep-key', type=str,default=':',
                     help='Character separating the key and the values')
-parser.add_argument('--sep-val', type=str,
+parser.add_argument('--sep-val', type=str,default=',',
                     help='Character separating the values')
 
+parser.add_argument("--void-char", type=str, default='_', help= "Character signifying that a value is unknown")
 parser.add_argument('-u', '--unity', action='append', nargs='*',default=[],
                     help='List of regexps. Keys that dont have an unity matching one of the regexps wont be ploted.')
 

@@ -9,6 +9,7 @@ args= parser.getArgs()
 paths= args["file"]
 sep_key = args["sep_key"] 
 sep_val=args["sep_val"]
+void_char=args["void_char"]
 keys=args["keys"]
 keys_filter= args["keys_filter"]
 labels = args["labels"]
@@ -18,18 +19,34 @@ unity=args["unity"]
 out_path=args['out_path']
 out_format= args['out_format']
 plot= args['plot']
+KVH_file.default_key_sep = sep_key
+KVH_file.default_value_sep =sep_val 
+KVH_file.default_void_str=void_char
 
-the_file= KVH_file(paths[0], key_sep=sep_key, value_sep=sep_val)
-for path in paths[1::]:
-    f= KVH_file(path, key_sep=sep_key, value_sep=sep_val)
+
+
+the_file= KVH_file()
+for path in paths:
+    f= KVH_file(path)
     the_file.merge_vertical(f)
- 
-matched_keys = select_keys(the_file, keys, keys_filter, unity)
 
-pos = select_pos(the_file, labels, labels_filter)
+if not keys and not keys_filter:
+    matched_keys=None# Letting to None is more efficient later cause it prevent the cloning latter on in the plotter
+else:
+    matched_keys = select_keys(the_file, keys, keys_filter, unity)
 
-if len(pos) == 1:
-    the_file.draw_pie(matched_keys, it=pos[0])
+if not labels and not labels_filter:
+    pos=None # Same
+else:
+    pos = select_pos(the_file, labels, labels_filter)
+
+if pos==None:
+    keys_num=len(the_file.dico.keys())
+else:
+    keys_num= len(pos)
+
+if keys_num == 1:
+    the_file.draw_pie(matched_keys)
 else:
     the_file.draw_history(matched_keys, ylabel, pos)
 

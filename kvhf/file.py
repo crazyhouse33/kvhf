@@ -9,7 +9,8 @@ class KVH_file:
     default_key_sep = ":"
     default_value_sep = ","
     default_value_generator=float
-    def __init__(self, file_or_dico=None, key_sep=None, value_sep=None, value_generator=None ):
+    default_void_str='_'
+    def __init__(self, file_or_dico=None, key_sep=None, value_sep=None, value_generator=None, void_str=None ):
         """Create a super dict from a normal dict, or a file. Empty super dict if nothing"""
         if value_generator==None:
             value_generator= KVH_file.default_value_generator
@@ -17,6 +18,9 @@ class KVH_file:
             key_sep=KVH_file.default_key_sep
         if value_sep==None:
             value_sep=KVH_file.default_value_sep
+        if void_str==None:
+            void_str= KVH_file.default_void_str
+        self.void_str=void_str
         self.key_sep=key_sep;
         self.value_sep=value_sep;
         self.value_generator= value_generator
@@ -36,7 +40,7 @@ class KVH_file:
 
 
     
-    def dump(self, file, keys=None, key_sep=None, value_sep=None):
+    def dump(self, file, keys=None, key_sep=None, value_sep=None, void_str=None):
         """Serialize subset of keys (default all) to given path"""
         if keys == None:
             keys= self.dico.keys()
@@ -47,8 +51,14 @@ class KVH_file:
         if value_sep==None:
             value_sep=self.value_sep
 
+        if void_str==None:
+            void_str=self.void_str
+
         if type(file)==str:
             file = open_mkdir(file,"w")
+
+
+
 
         #dump labels
         if self.labels:
@@ -56,8 +66,9 @@ class KVH_file:
         
         #dump keys
         for key in keys:
-            print(self.dico[key].dump(key,value_sep, key_sep), file=file)
-
+            entry=self.dico[key]
+            print(entry.dump(key,value_sep, key_sep, void_str), file=file)
+            
     def parse_file(self, file):
         """Parse a file"""
         file_content= file.read()
@@ -74,11 +85,17 @@ class KVH_file:
         for line in lines[start::]: 
             self.parse_line(line)
 
-        if line.startswith('#'):
-            self.labels.append((cpt, line[1:].split(self.key_sep)))
+    def parse_value(self, str_value):
+        """Try to aply the generator (float by default). If fail, return None"""
+        str_value=str_value.strip()
+        if str_value == self.void_str:
+            return None
+
+        return self.value_generator(str_value)
+
 
     def parse_values(self, values):
-        return [self.value_generator(str_value) for str_value in  values.strip().split(self.value_sep) if str_value]
+        return [self.parse_value(str_value) for str_value in values.strip().split(self.value_sep)]
 
 
     def parse_line(self, line):
@@ -112,11 +129,11 @@ class KVH_file:
             self.labels=line[1::].split(self.key_sep)
 
 
-
     def parse_file_name(self, path):
         """Open file and parse it. """
         with open(path) as f:
             self.parse_file(f)
+
 
     def merge_vertical(self,file2, keys=None):
         """Add entries of dico 2 corresponding to keys (by default all). If key is allready present, the new value replace the old one. This is supposed to be the same as concating 2 files and parsing the result"""
@@ -132,17 +149,40 @@ class KVH_file:
                 warn("Key "+ key+ " is going to be overwritten by vertical merge")
             self.dico[key]= file2.dico[key]
 
-    def merge_horizontal(self, file2, keys = None):
-        """Add entries of file2 corresponding to keys (by default all). If key is allready present, append the values of the second dico the existing one"""
+    def merge_labels(self, file2):
         intersection = [value for value in self.labels if value in file2.labels]
         if intersection:
             warn("Label collision on labels: " + '\n'.join(intersection))
         self.labels.extend(file2.labels)
+
+
+    def merge_horizontal(self, file2, keys = None):
+        """Add entries of file2 corresponding to keys (by default all). If key is allready present, append the values of the second dico the existing one"""
+        self.merge_labels(file2)
         if keys== None:
             keys = file2.dico.keys()
 
         for key in keys:
             self.key_extend(key, file2.dico[key])
+
+    def merge_historic(self, file2, keys=None):
+        if keys==None:
+            keys = file2.dico.keys()
+
+        news=[]
+        olds= set(self.dico.keys())
+        for key in keys:
+            if key not in self.dico:
+                news.append(key)
+            else:
+                olds.remove(key)
+        self.merge_horizontal(file2)
+        max_key,max_len=self.get_max_len()
+        self.re_equilibrate( news,max_len, left=True)
+        self.re_equilibrate( olds,max_len, left=False)
+        return olds, news
+
+        
 
     def key_extend(self, key, stats):
         self.dico[key].extend(stats)
@@ -158,7 +198,9 @@ class KVH_file:
         if pos==None:
             pos=range(len(self.labels))
 
-        labels = [self.labels[i] for i in pos]
+
+        labels = [self.labels[i] if i<len(self.labels) else '' for i in pos ]
+
 
         if  keys==None:
             keys= self.dico.keys()
@@ -173,6 +215,26 @@ class KVH_file:
             self.dico[key].plot(key, pos)
 
         pyplot.legend()
+
+    def _desequilibred_keys(self, target):
+        return [ key for key, value in self.dico.items() if len(value) != target]
+
+    def desequilibred_keys(self):
+        """Return keys that dont have same number of values than number the max len key"""
+        max_key, target=self.get_max_len()
+        return self._desequilibred_keys(target), max_key, target
+
+    def get_max_len(self):
+        """Get Highest key"""
+        return  max([(key, len(serie)) for  key, serie in self.dico.items()],key=lambda x: x[1] )
+
+
+    def re_equilibrate(self,not_equilibred, target,left=False):
+        """Pads any given keys to match target. """
+        for key in not_equilibred:
+            entry= self.dico[key]
+            entry.means=Serie_stats.pad_list(entry.means, target,left=left)
+
 
 
     def draw_pie(self, keys=None, label=None, it=-1):
@@ -194,8 +256,66 @@ class KVH_file:
         prepare_path(path)
         pyplot.savefig(path,format=format)
 
-    def plot(self):
-        pyplot.show(block=False)
+    def plot(self, block=False):
+        pyplot.show(block=block)
+
+#Todo split in more functions
+
+
+    def check_labels(self, max_key=None, max_value=None ):
+        msg=[]
+        if max_value==None:
+            max_key, max_value = self.get_max_len()
+
+        if not len(self.labels)==max_value:
+            msg.append("\nLabels (number={}) does not cover all given iterations (number={} from key{}).\n".format(len(self.labels), max_value, max_key))
+        return msg
+
+    def check_alignement(self):
+        not_equilibred, max_key, target= self.desequilibred_keys()
+        msg=[]
+        if not_equilibred:
+            msg.append("All keys dont have same lenght (max={}):\n".format(target))
+            for key in not_equilibred:
+                entry= self.dico[key]
+                msg.append("\t- Requilibrating necessary for key {} of size {}.".format(key, len(entry)))
+            msg.append("\nThis keys will be appended with the void value. This can indicate a bug in your file generation, such a disparion/aparition of a metric.\n")
+        return msg, max_key, target
+
+
+
+    def check_report(self):
+        # Alignement checks
+        msg, max_key, target=self.check_alignement()
+        
+        # Labels checks
+        msg.extend(self.check_labels( max_key, target))
+
+        #Individual keys checks
+        msg.extend(self.check_keys())
+
+        return "\n".join(msg)
+
+    def check_keys(self):
+
+        msg=[]
+        # Individual keys checks
+        for key, value in self.dico.items():
+            target= len(value)
+            desequilibred_attributes =value.desequilibred_attributes()
+            if desequilibred_attributes:
+                msg.append("\nSome attributes of key {} dont have same lenght as the key size({}): \n".format(key,target))
+
+                for attribute_name, the_list, size in desequilibred_attributes:
+                    msg.append("\t- {} is of size {}".format(attribute_name, size))
+                msg.append("\nTheses attributes will be appended with void values. This can indicate a bug in your file generation, that suddently stop recolting some metrics.")
+            mathmathic_problems= value.mathematic_impossibilities()
+            if mathmathic_problems:
+                msg.append('Some impossibles situations had been detected for key {}:\n'.format(key))
+                for index, problem in mathmathic_problems:
+                    msg.append('\t Index {}, {}'.format(index, problem))
+
+        return msg
 
     
     def __eq__(self, other):
