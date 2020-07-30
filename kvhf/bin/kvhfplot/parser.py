@@ -41,6 +41,10 @@ parser.add_argument('-f', '--out-format',
 parser.add_argument('-y', '--y-label',
                     help='Legend ploted on graph to comment y axis')
 
+parser.add_argument('-t', '--title',default='',
+                    help='Title in the graph')
+
+
 
 
 

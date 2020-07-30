@@ -190,31 +190,7 @@ class KVH_file:
     def labels_to_pos(self, labels):
         return [self.labels.index(label) for label in labels]
 
-    def draw_history(self, keys=None, ylabel=None, pos=None):
-        """Plot on same graph every values of given keys (all by default)"""
-        if ylabel==None:
-            ylabel=""
-
-        if pos==None:
-            pos=range(len(self.labels))
-
-
-        labels = [self.labels[i] if i<len(self.labels) else '' for i in pos ]
-
-
-        if  keys==None:
-            keys= self.dico.keys()
-        
-        #Ploting nice grid and stuff
-        pyplot.figure()
-        pyplot.xticks(range(len(labels)), labels)
-        pyplot.grid(axis="x")
-        pyplot.ylabel(ylabel)
-        
-        for key in keys:
-            self.dico[key].plot(key, pos)
-
-        pyplot.legend()
+    
 
     def _desequilibred_keys(self, target):
         return [ key for key, value in self.dico.items() if len(value) != target]
@@ -235,20 +211,49 @@ class KVH_file:
             entry= self.dico[key]
             entry.means=Serie_stats.pad_list(entry.means, target,left=left)
 
+    
+    def draw_shared_prep(title=''):
+        fig=pyplot.figure()
+        if title:
+            pyplot.title(title)
+            fig.canvas.set_window_title(title)
 
-
-    def draw_pie(self, keys=None, label=None, it=-1):
-        """Plot pie chart of last values of given keys (all by default) at the version given either by the label, either by the index. By default last label is used"""
+    def draw_pie(self, keys=None,  title='',it=-1):
+        """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys ==None:
             keys=self.dico.keys()
 
-        if label!=None:
-            it = self.labels.index(label)
-
         values = [self.dico[key].means[it] for key in keys]
 
-        pyplot.figure()
+        KVH_file.draw_shared_prep(title)
         pyplot.pie(values, labels=keys)
+
+    def draw_history(self, keys=None, pos=None, ylabel=None, title=''):
+        """Plot on same graph every values of given keys (all by default)"""
+        if ylabel==None:
+            ylabel=""
+
+        if pos==None:
+            pos=range(len(self.labels))
+
+
+        labels = [self.labels[i] if i<len(self.labels) else '' for i in pos ]
+
+
+        if  keys==None:
+            keys= self.dico.keys()
+        
+        #Ploting nice grid and stuff
+
+        KVH_file.draw_shared_prep(title)
+        pyplot.xticks(range(len(labels)), labels)
+        pyplot.grid(axis="x")
+        pyplot.ylabel(ylabel)
+        
+        for key in keys:
+            self.dico[key].plot(key, pos)
+
+        pyplot.legend()
 
     def save_img(self, path, format=None):
         if format==None:

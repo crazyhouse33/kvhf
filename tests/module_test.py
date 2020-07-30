@@ -109,9 +109,7 @@ def test_equilibrate():
     max_key, max_len= histo3.get_max_len()
     assert max_key=='key2'
     assert max_len==3
-    histo3.draw_history()
-    histo3.plot(True)
-
+    histo3.draw_history(title='tata_tutu')
 
     histo3.re_equilibrate(['key2'], max_len)
     histo3.re_equilibrate(['key'], max_len, left=True)

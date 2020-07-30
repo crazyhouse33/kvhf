@@ -19,6 +19,7 @@ unity=args["unity"]
 out_path=args['out_path']
 out_format= args['out_format']
 plot= args['plot']
+title=args['title']
 KVH_file.default_key_sep = sep_key
 KVH_file.default_value_sep =sep_val 
 KVH_file.default_void_str=void_char
@@ -46,9 +47,9 @@ else:
     keys_num= len(pos)
 
 if keys_num == 1:
-    the_file.draw_pie(matched_keys)
+    the_file.draw_pie(matched_keys, title=title)
 else:
-    the_file.draw_history(matched_keys, ylabel, pos)
+    the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title)
 
 if out_path:        
     the_file.save_img(out_path, out_format)
