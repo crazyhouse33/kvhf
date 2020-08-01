@@ -221,47 +221,82 @@ class KVH_file:
             pyplot.title(title)
             fig.canvas.set_window_title(title)
 
+    def decorate_title_label(self, it, title):
+        try:
+            label=self.label_repr(self.labels[it])
+            if label:
+                if title:
+                    return '({})'.format(label)
+                else:
+                    return label
+        except IndexError:
+            return ''
+
+
     def draw_pie(self, keys=None,  title='',it=-1):
         """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys ==None:
             keys=self.dico.keys()
 
         values = [self.dico[key].means[it] for key in keys]
-
-        label=self.label_repr(self.labels[it])
-        if label:
-            title+= '({})'.format(label)
+        title+= self.decorate_title_label(it, title)
 
 
         KVH_file.draw_shared_prep(title)
-        pyplot.pie(values, labels=keys)
+        pyplot.pie(values, labels=keys, autopct='%1.1f%%')
 
     def draw_history(self, keys=None, pos=None, ylabel=None, title=''):
-        """Plot on same graph every values of given keys (all by default)"""
+        """Plot on same graph every values of given keys (all by default). If only one label is selected, print keys side by side"""
         if ylabel==None:
             ylabel=""
 
         if pos==None:
             pos=range(len(self.labels))
 
+        if  keys==None:
+            keys= self.dico.keys()
+
+        if len(pos)==1:
+            return self.draw_bars(keys=keys, ylabel=ylabel, title=title, it=0)#it=-1 crash for empty list or empty attributes
+
 
         labels = [self.label_repr(self.labels[i]) if i<len(self.labels) else '' for i in pos ]
 
 
-        if  keys==None:
-            keys= self.dico.keys()
         
         #Ploting nice grid and stuff
 
         KVH_file.draw_shared_prep(title)
-        pyplot.xticks(range(len(labels)), labels)
         pyplot.grid(axis="x")
         pyplot.ylabel(ylabel)
+        pyplot.xticks(range(len(labels)), labels)
         
         for key in keys:
             self.dico[key].plot(key, pos)
 
         pyplot.legend()
+
+    def draw_bars(self, keys=None, ylabel=None, title='',it=-1):
+        """Plot keys sides by side."""
+
+
+        if ylabel==None:
+            ylabel=""
+
+        if  keys==None:
+            keys= self.dico.keys()
+
+
+        KVH_file.draw_shared_prep(title)
+        title+=self.decorate_title_label(it, title)
+        
+        pyplot.xticks(range(len(keys)), keys)
+        pyplot.grid(axis="y")
+        pyplot.ylabel(ylabel)
+
+        for i, key, in enumerate(keys):
+            self.dico[key].plot_one(key, i,it)
+
 
     def label_repr(self,label):
         """Return the part that is supposed to be printed by the plotter in a label"""
@@ -320,6 +355,7 @@ class KVH_file:
         for key, value in self.dico.items():
             target= len(value)
             desequilibred_attributes =value.desequilibred_attributes()
+            desequilibred_attributes= [attribute for attribute in desequilibred_attributes if attribute[1]]
             if desequilibred_attributes:
                 msg.append("\nSome attributes of key {} dont have same lenght as the key size({}): \n".format(key,target))
 

@@ -159,8 +159,7 @@ build
 [._]*.un~
 
 #images
-*.svg
-!images/*
+tests/**/*.svg
 #random bad organization stuff (should be in test/out)
 tests/test_work_dir/add_test.hdf
 tests/test_work_dir/extract_test.hkvf

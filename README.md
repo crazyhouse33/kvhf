@@ -59,9 +59,15 @@ will output the plot this image:
 
 ![Normal mode](dev/data/images/hist.svg)
 
-If your selection match only one label, it switch to pie chart mode:
+If your selection match only one label, it switch to bar chart mode:
 ```bash
 kvhfplot file -l t1
+```
+![Pie mode](dev/data/images/hist_bars.svg)
+
+If you activate the comparison switch, it print to pie chart mode:
+```bash
+kvhfplot file -l t1 -c
 ```
 ![Pie mode](dev/data/images/hist_pie.svg)
 

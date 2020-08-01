@@ -15,6 +15,8 @@ parser.add_argument('-k', '--keys', action='append', default=[],
 parser.add_argument('-l', '--labels', action='append',default=[],
                     help='List of regexp. If a label match one of the regexps, it\'s plotted unless matched by a filter. If not provided every label is ploted')
 
+parser.add_argument('-c','--comparison-chart', action='store_true', help='Draw a comparison chart unstead of curves if the selection match one label only' )
+
 parser.add_argument('-L', '--labels_filter', action='append',default=[],
                     help='List of regexp. If a label match one of the regexps, it wont be plotted ')
 
@@ -32,7 +34,7 @@ parser.add_argument('-u', '--unity', action='append', nargs='*',default=[],
 parser.add_argument('-o', '--out-path',
                     help='Path of the created image. If none plot the image without saving it.')
 
-parser.add_argument('-p', '--plot',
+parser.add_argument('-p', '--plot',action='store_true',
                     help='Plot image even if you precise an output file as well')
 
 parser.add_argument('-f', '--out-format',
@@ -43,8 +45,8 @@ parser.add_argument('-y', '--y-label',
 
 parser.add_argument('-t', '--title',default='',
                     help='Title in the graph')
-
-
+#test only option
+parser.add_argument('--dont-block',action='store_false', help=argparse.SUPPRESS)
 
 
 

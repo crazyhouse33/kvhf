@@ -19,7 +19,9 @@ unity=args["unity"]
 out_path=args['out_path']
 out_format= args['out_format']
 plot= args['plot']
+pie=args['comparison_chart']
 title=args['title']
+dont_block=args['dont_block']
 KVH_file.default_key_sep = sep_key
 KVH_file.default_value_sep =sep_val 
 KVH_file.default_void_str=void_char
@@ -36,6 +38,7 @@ if not keys and not keys_filter:
 else:
     matched_keys = select_keys(the_file, keys, keys_filter, unity)
 
+
 if not labels and not labels_filter:
     pos=None # Same
 else:
@@ -46,8 +49,9 @@ if pos==None:
 else:
     keys_num= len(pos)
 
-if keys_num == 1:
-    the_file.draw_pie(matched_keys, title=title)
+
+if keys_num == 1 and pie:
+    the_file.draw_pie(matched_keys, title=title, it=pos[0])
 else:
     the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title)
 
@@ -55,7 +59,7 @@ if out_path:
     the_file.save_img(out_path, out_format)
 
 if not out_path or plot:
-    the_file.plot()
+    the_file.plot(dont_block)
 
 
 

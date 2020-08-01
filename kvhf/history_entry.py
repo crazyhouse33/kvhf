@@ -24,6 +24,14 @@ def filter_out_Nones(liste,pos):
 
 
 class Serie_stats:
+
+    def __init__(self,means=[], mins=[],maxs=[], stdevs=[]):
+        self.means=means
+        self.mins=mins
+        self.maxs=maxs
+        self.stdevs=stdevs
+
+
     def pad_list(liste, wanted_len,left=True,padder=None):
         """Remove end items till reaching wanted_len if too big.
            prepend None  till reaching wanted_len if too small.
@@ -70,6 +78,7 @@ class Serie_stats:
         substat=self.fragment(pos) # Taking subpart of pos
         substat.re_equilibrate() # Fixing label misagnilement 
 
+
         posmeans, means= filter_out_Nones(substat.means, pos) 
 
         base_line, = pyplot.plot(posmeans,means,marker='o', label=label)
@@ -81,7 +90,7 @@ class Serie_stats:
 
         posbars, stdevs= filter_out_Nones(substat.stdevs, posmeans)
         bar_means= [means[i] for i in posbars]
-        base_line=pyplot.errorbar(posbars,bar_means,yerr=stdevs, capsize=2,fmt='none', color= current_color).lines[0]
+        pyplot.errorbar(posbars,bar_means,yerr=stdevs, capsize=2,fmt='none', color= current_color)
         
 
         posmax, maxs= filter_out_Nones(substat.maxs, posmeans)
@@ -91,6 +100,37 @@ class Serie_stats:
         posmin, mins= filter_out_Nones(substat.mins, posmeans)
         min_means= [means[i] for i in posmin]
         pyplot.fill_between (posmin, mins, min_means,alpha=0.15,color=current_color )
+
+    def plot_one(self, label, drawing_pos, position):
+        """Plotting considering only one position (The notmal plot stay just empty). This can be called only on equilibred entries with only one label"""
+        substat=self.fragment([position]) # Taking subpart of pos
+        substat.re_equilibrate() # Fixing label misagnilement 
+
+        the_mean= substat.means[position]
+        the_stdev=substat.stdevs[position]
+        the_min=substat.mins[position]
+        the_max=substat.maxs[position]
+
+        if not the_mean:
+            return
+
+        base_line, = pyplot.plot(drawing_pos,the_mean,marker='o', label=label)
+        current_color=base_line.get_color()
+
+        if substat.unity:
+            label += " ("+substat.unity+")"
+
+
+        if the_stdev:
+            pyplot.errorbar(drawing_pos,the_mean,yerr=the_stdev, capsize=2,fmt='none', color= current_color)
+
+        #Pyplot height variable is really badely named.
+        if the_min:
+            pyplot.bar(drawing_pos, the_mean-the_min, bottom=the_min,alpha=0.2, color=current_color)
+
+        if the_max:
+            pyplot.bar(drawing_pos, the_max -the_mean, bottom=the_mean,alpha=0.2, color=current_color)
+        
 
 
         
@@ -120,9 +160,9 @@ class Serie_stats:
         """Return attributes than dont have same size as the means"""
         all_serie_lists=[getattr(self,attribute) for attribute in all_series_attributes]
         lens=map(len, all_serie_lists)
-        mixed= zip(all_serie, all_serie_lists, lens)
+        mixed= zip(all_series_attributes, all_serie_lists, lens)
 
-        return [serie for serie in mixed if serie[2] != 0 and serie[2] !=len(self)  ]
+        return [serie for serie in mixed if  serie[2] !=len(self)  ]
 
 
 
