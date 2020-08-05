@@ -4,6 +4,8 @@ import os
 import sys
 import argparse
 from subprocess import check_output
+sys.path= ['../..']+sys.path
+from kvhf import __version__ as version
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -19,7 +21,6 @@ parser.add_argument("message", metavar='CHANGELOG_BODY',type=str, help='Body of 
 
 parser.add_argument('--dry','-d',action='store_true', help='Show everything that will be executed unstead of executing')
 parser.add_argument('--no-test','-f',action='store_true', help='Dont run test')
-
 parser.add_argument('--no-push','-n',action='store_true', help='Dont push to remote')
 args = parser.parse_args()
 
@@ -32,7 +33,7 @@ def threatCommand(command):
     print(bcolors.BOLD,command,bcolors.ENDC)
     if not args.dry:
         if os.system(command) !=0:
-            sys.exit("Aborting release, a problem occured with git")
+            sys.exit("Aborting release, a problem occured")
 
 def did_you(string):
         inp=input("Did you "+string+"?[y/n]")
@@ -40,32 +41,45 @@ def did_you(string):
             exit("Well do it")
 
 if not args.dry:
-    did_you("update authbreak help page (interface/cliparser.c)")
-    did_you("update authbreak TEMPLATE readme (dev/push_release_to_master/push_to_master.py.cmake_template)")
-    did_you("change the version number (CMakeLists.txt")
+    did_you("update the help page")
+    did_you("update the templates files if they exist.")
+    did_you("change the version number? ")
 
 current_dir=os.getcwd()
-build_dir= "/opt/handCraftedUtilityShit/authbreak/build"
-root_dir="/opt/handCraftedUtilityShit/authbreak"
+#This script assume your test command build everything that need to be rebuilded
 
-change_dir(build_dir)
-threatCommand("cmake --build . --target full-test")#configuring file and running memory tests
+breakpoint()
+root_dir= check_output(['git', 'rev-parse' ,'--show-toplevel']).decode()[:-1]
+test_script="run_tests.bash"
+test_script_dir=root_dir+"/tests/"
+
+# run test
+change_dir(test_script_dir)
+threatCommand("./"+test_script)#configuring file and running memory tests
+
+#Commit
 change_dir(root_dir)
-threatCommand('git commit -a -m"Pushing release version 0.6 to master"')#commiting the readme and co change
+threatCommand('git commit -a -m"Pushing release version {} to master"'.format(version))#commiting the readme and co change
 
-current_branch = check_output(["git","rev-parse","--abbrev-ref" ,"HEAD"]).decode("utf8")[:-1]
-header= "Authbreak 0.6 :\n\n"
+current_branch = check_output(["git","rev-parse","--abbrev-ref" ,"HEAD"]).decode()[:-1]
+header= "{}:\n\n".format(version)
 changeLogMessage= header+ args.message
 
+#Commit in master
 threatCommand("git checkout master")
 
-threatCommand("git checkout dev -- src tests build build-helpers CMakeLists.txt extern .gitignore LICENSE README.md")
+threatCommand("git checkout dev -- kvhf tests eprof setup.py .gitignore LICENSE README.md")
 
-change_dir(root_dir)
 threatCommand('git commit -a -m "'+ changeLogMessage+ '"')
 
+#distribute
+change_dir(root_dir+'/dev')
+threatCommand("./distribute.bash")
+
+#push and come back to initial branch/dir
 if not args.no_push:#Push and back to current
     threatCommand('git push')
     threatCommand('git checkout '+current_branch)
     change_dir(current_dir)
+
 

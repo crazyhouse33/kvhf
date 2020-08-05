@@ -23,4 +23,8 @@ setuptools.setup(
         "Operating System :: OS Independent"
     ],
     python_requires='>=3.3',
+    install_requires=[
+   'git>=3.1.7',
+   'matplotlib>=3.2.2'
+    ]
 )

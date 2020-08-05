@@ -163,7 +163,7 @@ class KVH_file:
             keys = file2.dico.keys()
 
         for key in keys:
-            self.key_extend(key, file2.dico[key])
+            self.dico[key].extend(file2.dico[key])
 
     def merge_historic(self, file2, keys=None):
         if keys==None:
@@ -183,9 +183,6 @@ class KVH_file:
         return olds, news
 
         
-
-    def key_extend(self, key, stats):
-        self.dico[key].extend(stats)
 
     def labels_to_pos(self, labels):
         return [self.labels.index(label) for label in labels]

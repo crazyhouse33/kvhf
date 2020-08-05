@@ -25,11 +25,12 @@ def filter_out_Nones(liste,pos):
 
 class Serie_stats:
 
-    def __init__(self,means=[], mins=[],maxs=[], stdevs=[]):
-        self.means=means
-        self.mins=mins
-        self.maxs=maxs
-        self.stdevs=stdevs
+    def __init__(self,means=None, mins=None,maxs=None, stdevs=None, unity=None):
+        self.means=means if means != None else []
+        self.mins=mins if mins !=None else []
+        self.maxs=maxs if maxs !=None else []
+        self.stdevs=stdevs if stdevs != None else []
+        self.unity=unity if unity !=None else ''
 
 
     def pad_list(liste, wanted_len,left=True,padder=None):
@@ -49,14 +50,6 @@ class Serie_stats:
             return res
         else:
             return liste[:wanted_len]
-
-    def __init__(self):
-        self.means=[]
-        self.maxs=[]
-        self.mins=[]
-        self.stdevs=[]
-        self.unity=""
-
 
 
     def fragment(self,pos=None):
@@ -135,7 +128,7 @@ class Serie_stats:
 
         
     def __str__(self):
-        return self.dump("means", " ", ":")
+        return self.dump("means", " ", ":","_")
 
     def dump_filter(self, value, void_str):
         if value==None:

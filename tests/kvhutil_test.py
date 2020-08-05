@@ -27,7 +27,7 @@ def test_merge():
     expected = KVH_file("concatenation.hdf")
     assert expected == KVH_file("merge_out.hkvf")
 
-    dont_crash(prefix + ' test_data145.hdf test_data123.hdf -e -o merge_out.hkvf')
+    dont_crash(prefix + '  test_data123.hdf test_data145.hdf -e -o merge_out.hkvf')
     expected=KVH_file('horizontal_concat.hdf')
     assert expected == KVH_file("merge_out.hkvf")
 

@@ -6,7 +6,7 @@ parser = argparse.ArgumentParser(description="kvhfutils is an utility to manipul
 
 parser.add_argument('-V','--version', action='version', version=version)
 
-parser.add_argument('files', metavar='FILES',nargs='*',help="The files to manipulate")
+parser.add_argument('files', metavar='FILES',nargs='+',help="The files to manipulate")
 parser.add_argument('-o', '--out-path',
                     help='Path of potential output')
 

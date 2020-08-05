@@ -8,5 +8,9 @@ if [[ $1 == *.c ]]
 then
 	echo "$listDeco" linting $1 
 	clang-format $1 -style="{BasedOnStyle: llvm, ColumnLimit: 200}" -i
+elif [[ $1 == *.py ]] 
+then
+	echo "$listDeco" linting $1 
+	autopep8 --in-place --aggressive $1
 fi
 
