@@ -68,7 +68,7 @@ changeLogMessage= header+ args.message
 #Commit in master
 threatCommand("git checkout master")
 
-threatCommand("git checkout dev -- kvhf tests eprof setup.py .gitignore LICENSE README.md")
+threatCommand("git checkout dev -- kvhf tests setup.py .gitignore LICENSE README.md")
 
 threatCommand('git commit -a -m "'+ changeLogMessage+ '"')
 
