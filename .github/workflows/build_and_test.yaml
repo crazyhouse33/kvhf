@@ -1,0 +1,40 @@
+name: Install and Test
+
+on: [push, pull_request]
+
+jobs:
+  build_and_test:
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest ]
+      fail-fast: true
+    
+    steps:
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        # Semantic version range syntax or exact version of a Python version
+        python-version: '3.x'
+
+
+    - name: install pytest
+      run: python -m pip install pytest
+    
+    - name: install exe
+      run: python -m pip install -v kvhf --extra-index-url https://test.pypi.org/simple/ 
+
+      # need to get the code after, otherwise pip is confused 
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - run: git checkout dev 
+
+      #- name: install C lib
+      #run: cd libs/C/build && cmake .. && sudo cmake --build . --target install
+
+
+    - name: test
+      # Gfe test and utils involve getting checking out the repo and include dirty head from .git submodules, which I have no idea how to do. 
+      run: cd tests && ./run_tests.bash " --ignore='../gfe_test.py' --ignore='../kvhutil_test.py'"

@@ -21,7 +21,7 @@ The package expose python modules that you may find usefull:
 
 ## Install
 ```bash
-pip install kvhf
+pip install --index-url https://test.pypi.org/simple/ kvhf
 ```
 
 ## kvhplot

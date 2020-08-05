@@ -4,8 +4,8 @@ import pkgutil
 with open("README.md") as fh:
     long_description = fh.read()
 
-packages=setuptools.find_packages()
-print ("Found packages:\n",'\n'.join(packages),end='\n\n')
+packages = setuptools.find_packages()
+print ("Found packages:\n", '\n'.join(packages), end='\n\n')
 setuptools.setup(
     name="kvhf",
     version=version,
@@ -24,7 +24,7 @@ setuptools.setup(
     ],
     python_requires='>=3.3',
     install_requires=[
-   'git>=3.1.7',
-   'matplotlib>=3.2.2'
+        'gitpython>=3.0.0',
+        'matplotlib>=3.0.0'
     ]
 )

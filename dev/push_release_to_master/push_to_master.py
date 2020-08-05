@@ -65,16 +65,18 @@ current_branch = check_output(["git","rev-parse","--abbrev-ref" ,"HEAD"]).decode
 header= "{}:\n\n".format(version)
 changeLogMessage= header+ args.message
 
-#Commit in master
-threatCommand("git checkout master")
-
-threatCommand("git checkout dev -- kvhf tests setup.py .gitignore LICENSE README.md")
-
-threatCommand('git commit -a -m "'+ changeLogMessage+ '"')
-
 #distribute
 change_dir(root_dir+'/dev')
 threatCommand("./distribute.bash")
+
+#Commit in master
+threatCommand("git checkout master")
+
+threatCommand("git checkout {} -- kvhf tests setup.py .gitignore LICENSE README.md".format(current_branch))
+
+threatCommand('git commit -a -m "'+ changeLogMessage+ '"')
+
+
 
 #push and come back to initial branch/dir
 if not args.no_push:#Push and back to current

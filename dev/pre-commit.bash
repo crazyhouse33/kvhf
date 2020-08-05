@@ -2,4 +2,4 @@
 set -e
 #Run test
 cd ../tests
-bash run_test.bash
+bash run_tests.bash

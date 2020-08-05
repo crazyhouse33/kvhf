@@ -23,9 +23,13 @@
 protected="$(dev/.githooks/.is-branch-to-protect.py dev/protected-branchs)"
 
 if [ "$protected" == "1" ]; then
-	bash -c 'set -e; cd dev; ./pre-push.bash'
+	if test -f "dev/pre-push.bash"; then
+		bash -c 'set -e; cd dev; ./pre-push.bash'
+	fi
 else
 	echo Push is not protected. protected= $protected
 fi
+
+
 
 
