@@ -1,0 +1,72 @@
+#!/usr/bin/python3
+import kvhf.bin.kvhfplot.parser as parser
+from kvhf.file import KVH_file
+from kvhf.bin.kvhfplot.selection import *
+
+
+args= parser.getArgs()
+
+paths= args["file"]
+sep_key = args["sep_key"] 
+sep_val=args["sep_val"]
+void_char=args["void_char"]
+keys=args["keys"]
+keys_filter= args["keys_filter"]
+labels = args["labels"]
+labels_filter=args["labels_filter"]
+ylabel = args["y_label"]
+unity=args["unity"]
+out_path=args['out_path']
+out_format= args['out_format']
+plot= args['plot']
+pie=args['comparison_chart']
+title=args['title']
+dont_block=args['dont_block']
+KVH_file.default_key_sep = sep_key
+KVH_file.default_value_sep =sep_val 
+KVH_file.default_void_str=void_char
+
+
+
+the_file= KVH_file()
+for path in paths:
+    f= KVH_file(path)
+    the_file.merge_vertical(f)
+
+if not keys and not keys_filter:
+    matched_keys=None# Letting to None is more efficient later cause it prevent the cloning latter on in the plotter
+else:
+    matched_keys = select_keys(the_file, keys, keys_filter, unity)
+
+
+if not labels and not labels_filter:
+    pos=None # Same
+else:
+    pos = select_pos(the_file, labels, labels_filter)
+
+if pos==None:
+    keys_num=len(the_file.dico.keys())
+else:
+    keys_num= len(pos)
+
+
+if keys_num == 1 and pie:
+    the_file.draw_pie(matched_keys, title=title, it=pos[0])
+else:
+    the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title)
+
+if out_path:        
+    the_file.save_img(out_path, out_format)
+
+if not out_path or plot:
+    the_file.plot(dont_block)
+
+
+
+
+
+
+
+
+    
+    

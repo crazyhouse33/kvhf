@@ -1,5 +1,5 @@
-#commit 1:commit 4:commit 5
+#commit 1,commit 4,commit 5
 
-loading time: 10 5 6
-executable size: 400 300 250
-parsing args: 132 145 78
+loading time: 10, 5, 6
+executable size: 400, 300, 250
+parsing args: 132, 145, 78

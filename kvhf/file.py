@@ -1,121 +1,372 @@
 import matplotlib.pyplot as pyplot
 from warnings import warn
-__version__= "@version@"
- 
+from collections import defaultdict
+from kvhf.history_entry import Serie_stats
+from kvhf.libs.ppath import prepare_path, open_mkdir
 
-class Key_Value_History_File:
+
+class KVH_file:
     default_key_sep = ":"
-    default_value_sep = " "
-    def __init__(self, file_or_dico=None, key_sep=default_key_sep, value_sep=default_value_sep):
+    default_value_sep = ","
+    default_value_generator=float
+    default_void_str='_'
+    def __init__(self, file_or_dico=None, key_sep=None, value_sep=None, value_generator=None, void_str=None ):
         """Create a super dict from a normal dict, or a file. Empty super dict if nothing"""
+        if value_generator==None:
+            value_generator= KVH_file.default_value_generator
+        if key_sep==None:
+            key_sep=KVH_file.default_key_sep
+        if value_sep==None:
+            value_sep=KVH_file.default_value_sep
+        if void_str==None:
+            void_str= KVH_file.default_void_str
+        self.void_str=void_str
         self.key_sep=key_sep;
         self.value_sep=value_sep;
+        self.value_generator= value_generator
         self.labels=[]
-        if not file_or_dico:
-            self.dico = dictdefault(list)  
-        elif isinstance(file_or_dico,dict):
+        self.dico = defaultdict(Serie_stats)  
+        self.current_key=""
+        if file_or_dico==None:
+            return
+        if isinstance(file_or_dico,dict):
             self.dico = file_or_dico
         elif isinstance (file_or_dico, str):
-            self.dico = parse_file_name(file_or_dico)
-        elif isinstance (file_or_dico, file):
-            self.dico = parse_file(file_or_dico)
+            self.parse_file_name(file_or_dico)
+        elif hasattr(file_or_dico,'read') and callable(file_or_dico.read):#python 3 cant use file 
+                self.parse_file(file_or_dico)
         else:
-            raise RuntimeError("Init file or dico must be a path (str), a file, or dictionnary, not"+ str(type(file_or_dico)))
+            raise TypeError("Init argument must be nothing, a path (str), a file, or dictionnary, not "+ str(type(file_or_dico)))
 
 
     
-    def dump(self, file, keys=None, key_sep=default_key_sep, value_sep=default_value_sep):
+    def dump(self, file, keys=None, key_sep=None, value_sep=None, void_str=None):
         """Serialize subset of keys (default all) to given path"""
         if keys == None:
             keys= self.dico.keys()
 
-        with open(file,"w") as f:
-            for key in keys:
-                print("{}{}{}".format(key, key_sep, value_sep.join(self.dico[key])),file=f)
+        if key_sep==None:
+            key_sep=self.key_sep
 
-    def parse_file(file, key_sep, value_sep):
+        if value_sep==None:
+            value_sep=self.value_sep
+
+        if void_str==None:
+            void_str=self.void_str
+
+        if type(file)==str:
+            file = open_mkdir(file,"w")
+
+
+
+
+        #dump labels
+        if self.labels:
+            print ("#"+self.value_sep.join(self.labels), file=file)
+        
+        #dump keys
+        for key in keys:
+            entry=self.dico[key]
+            print(entry.dump(key,value_sep, key_sep, void_str), file=file)
+            
+    def parse_file(self, file):
         """Parse a file"""
-        dico=Key_Value_History_File(key_sep = key_sep, value_sep = value_sep)
-        lines= file.read().split('\n')
-        dico.parse_labels(lines[0])
-        if not dico.labels:
-            warn("No labels found in file ", file)
-        for line in lines[1::]: 
-            dico.parse_line(line)
+        file_content= file.read()
+        if not type(file_content)==str:
+            file_content=file_content.decode()
+        lines= file_content.split('\n')
+        if lines[0].startswith("#"):
+            self.parse_labels(lines[0])
+            start=1
+        else:
+            start=0
+        if not self.labels:
+            warn("No labels found in file: "+ file.name)
+        for line in lines[start::]: 
+            self.parse_line(line)
 
-        if line.startwith('#'):
-            self.labels.append((cpt, line[1:].split(key_sep)))
-        return dico
+    def parse_value(self, str_value):
+        """Try to aply the generator (float by default). If fail, return None"""
+        str_value=str_value.strip()
+        if str_value == self.void_str:
+            return None
 
-    def parse_line(dico, line):
-        key, sep, values= line.partition(dico.key_sep)
-        if sep:
-            dico[key]= values.split(dico.value_sep)
-
-    def parse_labels(dico, line):
-        if line.startwith("#"):
-            dico.labels=line[1::].split(dico.key_sep)
+        return self.value_generator(str_value)
 
 
+    def parse_values(self, values):
+        return [self.parse_value(str_value) for str_value in values.strip().split(self.value_sep)]
 
-    def parse_file_name(path, key_sep, value_sep):
+
+    def parse_line(self, line):
+        key, sep, values_str= line.partition(self.key_sep)
+        key=key.strip()
+        if (not sep):
+            if key:
+                warn("Ignoring line :\n\"" + line + "\"\n because no value separator found")
+            return 
+
+        if key.startswith("-") and self.current_key:
+            
+            if key[1::].strip().startswith( "unity"):
+                    self.dico[self.current_key].unity= values_str.strip()
+            else:
+                values= self.parse_values(values_str)
+                if key[1::].strip().startswith( "maxs"):
+                        self.dico[self.current_key].maxs=values 
+                elif key[1::].strip().startswith( "mins"):
+                        self.dico[self.current_key].mins= values
+                elif key[1::].strip().startswith( "stdev"):
+                        self.dico[self.current_key].stdevs= values
+                else:
+                    warn("Unknow attribute at line: "+line)
+        else:
+            self.current_key=key
+            stats= self.dico[self.current_key]
+            stats.means= self.parse_values(values_str)
+
+    def parse_labels(self, line):
+            self.labels=line[1::].split(self.value_sep)
+
+
+    def parse_file_name(self, path):
         """Open file and parse it. """
         with open(path) as f:
-            return parse_file(f, key_sep, value_sep)
+            self.parse_file(f)
 
-    def merge_vertical(self,dico2, keys=None):
+
+    def merge_vertical(self,file2, keys=None):
         """Add entries of dico 2 corresponding to keys (by default all). If key is allready present, the new value replace the old one. This is supposed to be the same as concating 2 files and parsing the result"""
-        if self.labels != dico2.labels:
-            warn("Vertical merge on different labels files. New label are the one of the first)")
+        if file2.labels:
+            if self.labels and self.labels != file2.labels:
+                warn("Vertical merge on different labels files. New labels replaced old ones)")
+            self.labels=file2.labels 
         if keys == None:
-            keys = dico2.dico.keys()
+            keys = file2.dico.keys()
 
         for key in keys:
-            if self.dico[key]:
-                warn("Key ", key, " is going to be overwritten by vertical merge")
-            self.dico[key]= dico2.dico[key]
+            if key in self.dico:
+                warn("Key "+ key+ " is going to be overwritten by vertical merge")
+            self.dico[key]= file2.dico[key]
 
-    def merge_horizontal(self, dico2, keys = None):
-        """Add entries of dico2 corresponding to keys (by default all). If key is allready present, append the values of the second dico the existing one"""
-        intersection = [value for value in self.labels if value in dico2.labels]
+    def merge_labels(self, file2):
+        intersection = [value for value in self.labels if value in file2.labels]
         if intersection:
             warn("Label collision on labels: " + '\n'.join(intersection))
-        self.labels.extend(dico2.labels)
+        self.labels.extend(file2.labels)
+
+
+    def merge_horizontal(self, file2, keys = None):
+        """Add entries of file2 corresponding to keys (by default all). If key is allready present, append the values of the second dico the existing one"""
+        self.merge_labels(file2)
         if keys== None:
-            keys = dico2.dico.keys()
+            keys = file2.dico.keys()
 
         for key in keys:
-            self.dico[key].extend(dico2.dico[key])
+            self.dico[key].extend(file2.dico[key])
 
-    def plot(self, keys=None):
-        """Plot on same graph every values of given keys (all by default)"""
-        if  keys==None:
-            keys= self.dico.keys()
+    def merge_historic(self, file2, keys=None):
+        if keys==None:
+            keys = file2.dico.keys()
 
-        plt.xticks(x, self.labels)
-
+        news=[]
+        olds= set(self.dico.keys())
         for key in keys:
-            pyplot.plot(self.dico[key], label=key)
+            if key not in self.dico:
+                news.append(key)
+            else:
+                olds.remove(key)
+        self.merge_horizontal(file2)
+        max_key,max_len=self.get_max_len()
+        self.re_equilibrate( news,max_len, left=True)
+        self.re_equilibrate( olds,max_len, left=False)
+        return olds, news
 
-        pyplot.legend()
+        
 
-    def plot_pie(self, keys=None, label=None, it=-1):
-        """Plot pie chart of last values of given keys (all by default) at the version given either by the label, either by the index. By default last label is used"""
+    def labels_to_pos(self, labels):
+        return [self.labels.index(label) for label in labels]
+
+    
+
+    def _desequilibred_keys(self, target):
+        return [ key for key, value in self.dico.items() if len(value) != target]
+
+    def desequilibred_keys(self):
+        """Return keys that dont have same number of values than number the max len key"""
+        max_key, target=self.get_max_len()
+        return self._desequilibred_keys(target), max_key, target
+
+    def get_max_len(self):
+        """Get Highest key"""
+        keys_len_tuple=[(key, len(serie)) for  key, serie in self.dico.items()]
+        if not keys_len_tuple:
+            return 'NOKEY', 0
+        return  max(keys_len_tuple,key=lambda x: x[1] )
+
+
+    def re_equilibrate(self,not_equilibred, target,left=False):
+        """Pads any given keys to match target. """
+        for key in not_equilibred:
+            entry= self.dico[key]
+            entry.means=Serie_stats.pad_list(entry.means, target,left=left)
+
+    
+    def draw_shared_prep(title=''):
+        fig=pyplot.figure()
+        if title:
+            pyplot.title(title)
+            fig.canvas.set_window_title(title)
+
+    def decorate_title_label(self, it, title):
+        try:
+            label=self.label_repr(self.labels[it])
+            if label:
+                if title:
+                    return '({})'.format(label)
+                else:
+                    return label
+        except IndexError:
+            return ''
+
+
+    def draw_pie(self, keys=None,  title='',it=-1):
+        """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys ==None:
             keys=self.dico.keys()
 
-        if label!=None:
-            it = self.labels.index(label)
+        values = [self.dico[key].means[it] for key in keys]
+        title+= self.decorate_title_label(it, title)
 
-        values = [self.dico[key][it] for key in keys]
-        pyplot.pie(values, labels=keys)
+
+        KVH_file.draw_shared_prep(title)
+        pyplot.pie(values, labels=keys, autopct='%1.1f%%')
+
+    def draw_history(self, keys=None, pos=None, ylabel=None, title=''):
+        """Plot on same graph every values of given keys (all by default). If only one label is selected, print keys side by side"""
+        if ylabel==None:
+            ylabel=""
+
+        if pos==None:
+            pos=range(len(self.labels))
+
+        if  keys==None:
+            keys= self.dico.keys()
+
+        if len(pos)==1:
+            return self.draw_bars(keys=keys, ylabel=ylabel, title=title, it=0)#it=-1 crash for empty list or empty attributes
+
+
+        labels = [self.label_repr(self.labels[i]) if i<len(self.labels) else '' for i in pos ]
+
+
+        
+        #Ploting nice grid and stuff
+
+        KVH_file.draw_shared_prep(title)
+        pyplot.grid(axis="x")
+        pyplot.ylabel(ylabel)
+        pyplot.xticks(range(len(labels)), labels)
+        
+        for key in keys:
+            self.dico[key].plot(key, pos)
+
+        pyplot.legend()
+
+    def draw_bars(self, keys=None, ylabel=None, title='',it=-1):
+        """Plot keys sides by side."""
+
+
+        if ylabel==None:
+            ylabel=""
+
+        if  keys==None:
+            keys= self.dico.keys()
+
+
+        KVH_file.draw_shared_prep(title)
+        title+=self.decorate_title_label(it, title)
+        
+        pyplot.xticks(range(len(keys)), keys)
+        pyplot.grid(axis="y")
+        pyplot.ylabel(ylabel)
+
+        for i, key, in enumerate(keys):
+            self.dico[key].plot_one(key, i,it)
+
+
+    def label_repr(self,label):
+        """Return the part that is supposed to be printed by the plotter in a label"""
+        return label.split(self.key_sep)[-1]
+
+    def save_img(self, path, format=None):
+        if format==None:
+            format='svg'
+        prepare_path(path)
+        pyplot.savefig(path,format=format)
+
+    def plot(self, block=False):
+        pyplot.show(block=block)
+
+#Todo split in more functions
+
+
+    def check_labels(self, max_key=None, max_value=None ):
+        msg=[]
+        if max_value==None:
+            max_key, max_value = self.get_max_len()
+
+        if not len(self.labels)==max_value:
+            msg.append("\nLabels (number={}) does not cover all given iterations (number={} from key{}).\n".format(len(self.labels), max_value, max_key))
+        return msg
+
+    def check_alignement(self):
+        not_equilibred, max_key, target= self.desequilibred_keys()
+        msg=[]
+        if not_equilibred:
+            msg.append("All keys dont have same lenght (max={}):\n".format(target))
+            for key in not_equilibred:
+                entry= self.dico[key]
+                msg.append("\t- Requilibrating necessary for key {} of size {}.".format(key, len(entry)))
+            msg.append("\nThis keys will be appended with the void value. This can indicate a bug in your file generation, such a disparion/aparition of a metric.\n")
+        return msg, max_key, target
+
+
+
+    def check_report(self):
+        # Alignement checks
+        msg, max_key, target=self.check_alignement()
+        
+        # Labels checks
+        msg.extend(self.check_labels( max_key, target))
+
+        #Individual keys checks
+        msg.extend(self.check_keys())
+
+        return "\n".join(msg)
+
+    def check_keys(self):
+
+        msg=[]
+        # Individual keys checks
+        for key, value in self.dico.items():
+            target= len(value)
+            desequilibred_attributes =value.desequilibred_attributes()
+            desequilibred_attributes= [attribute for attribute in desequilibred_attributes if attribute[1]]
+            if desequilibred_attributes:
+                msg.append("\nSome attributes of key {} dont have same lenght as the key size({}): \n".format(key,target))
+
+                for attribute_name, the_list, size in desequilibred_attributes:
+                    msg.append("\t- {} is of size {}".format(attribute_name, size))
+                msg.append("\nTheses attributes will be appended with void values. This can indicate a bug in your file generation, that suddently stop recolting some metrics.")
+            mathmathic_problems= value.mathematic_impossibilities()
+            if mathmathic_problems:
+                msg.append('Some impossibles situations had been detected for key {}:\n'.format(key))
+                for index, problem in mathmathic_problems:
+                    msg.append('\t Index {}, {}'.format(index, problem))
+
+        return msg
 
     
     def __eq__(self, other):
-        return self.labels == other.labels and self.dico == other.dico
-
-
-
-
-
-
+        return self.dico == other.dico
