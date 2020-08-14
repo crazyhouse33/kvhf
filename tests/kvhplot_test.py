@@ -6,7 +6,8 @@ from kvhf.file import KVH_file
 import sys
 
 path = '../../kvhf/bin/kvhfplot'
-prefix = 'PYTHONPATH=' + path + ':../.. python3 ' + path + '/kvhfplot --dont-bloc '
+prefix = 'PYTHONPATH=' + path + ':../.. python3 ' + \
+    path + '/kvhfplot --dont-block '
 
 
 def selection_keys_t(kvh_file, keys, filter, unity, expected):
@@ -59,7 +60,7 @@ def test_pos():
 
 
 def test_crash():
-    dont_crash(prefix + 'test_data123.hdf test_data145.hdf')
+    dont_crash(prefix + 'test_data123.hdf test_data145.hdf -r 45')
     dont_crash(prefix + 'test_data123.hdf test_data145.hdf -u tatata')
     dont_crash(
         prefix +

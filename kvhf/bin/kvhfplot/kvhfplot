@@ -21,6 +21,7 @@ out_format= args['out_format']
 plot= args['plot']
 pie=args['comparison_chart']
 title=args['title']
+rotation=args['labels_rotation']
 dont_block=args['dont_block']
 KVH_file.default_key_sep = sep_key
 KVH_file.default_value_sep =sep_val 
@@ -53,7 +54,7 @@ else:
 if keys_num == 1 and pie:
     the_file.draw_pie(matched_keys, title=title, it=pos[0])
 else:
-    the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title)
+    the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title, label_rot=rotation)
 
 if out_path:        
     the_file.save_img(out_path, out_format)
