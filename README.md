@@ -93,14 +93,14 @@ First, you need a way to automate a per commit kvhf file creation. For this you 
  1. kvhfutils -k to add keys or attribute to allready existing kvhf file.
  2. kvhfutils -m to combine keys of two allready existing kvhf files.
  3. A third party software that produce kvhf files (eprof)
- 4. kvhfutils -v to check than the file is perfectely formated and dont contain abnormalies
+ 4. kvhfutils -v to check than the file is aligned and dont contain any kind of abnormalies that could come from a bug in you generation
 
 
 According to your build system, create a script or a target that create that commit resume thanks to those tools. Lets call this generate.bash
 
 ex:
 ```bash
-kvhfutils per_commit_resume.kvf -k exe_size:$(du bin/myexe) -k exe_size:unity:Mo
+kvhfutils per_commit_resume.kvf -k exe_size:$(du bin/myexe | cut -f1) -k exe_size:unity:Ko
 kvhfutils per_commit_resume.kvf -v -k exec_time:$(TIMEFMT=%R; time the_perf_test >/dev/null) -k exec_time:unity:ms
 ```
 
@@ -132,7 +132,7 @@ This will check that the label of the file is existing and not the same as the p
 (pre-commit) kvhfutils -o accumulator.kvhf  --extend accumulator.kvhf per\_commit\_resume
 ```
 
-This save the need to extract the whole history each time you want to plot it.
+This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit 
 
 
 ## Tricks

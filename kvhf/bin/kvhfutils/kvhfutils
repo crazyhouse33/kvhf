@@ -2,6 +2,7 @@
 import kvhf.bin.kvhfutils.parser as parser
 import sys
 from kvhf.file import KVH_file
+from kvhf.history_entry import all_serie
 import kvhf.libs.gfe as gfe
 
 
@@ -89,13 +90,17 @@ elif keys:
 
             if len(split)==2:
                 key_name, values= split
-                where_to_extend= kvh_File.dico[key_name].means
+                attr='means'
             elif len(split)==3:
                 key_name, attr, values = split
-                where_to_extend = getattr(kvh_File.dico[key_name], attr)
             else:
                 sys.exit("Error, In key add mode, the keys should be in the form KEYNAME KEYSEP VALUE1 VALUESEP VALUE2 to add values to keys or KEYNAME KEYSEP ATTRIBUTE KEYSEP VALUE1 VALUESEP VALUE2... to add drawing attribute to an existant key ")
-            where_to_extend.extend(kvh_File.parse_values(values))
+
+            where_to_extend = getattr(kvh_File.dico[key_name], attr)
+            if attr in all_serie:# dont parse for not serie stuff
+                where_to_extend.extend(kvh_File.parse_values(values))
+            else:
+                setattr(kvh_File.dico[key_name], attr, values)
         output_file(kvh_File,path)
 
 elif git_extract or git_actualized_label:
@@ -145,7 +150,7 @@ elif git_extract or git_actualized_label:
                 user_label=input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
-                output_file(current_file,path)
+            output_file(current_file,path)
 
                 
 elif historic_merge:

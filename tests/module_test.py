@@ -99,7 +99,7 @@ def test_checks():
 
     assert histo3.check_keys()
     assert histo3.check_labels()
-    msg, max_key, max_len=histo3.check_alignement()
+    msg, max_key, max_len = histo3.check_alignement()
     assert msg
     assert max_key == 'key2'
     assert max_len == 3
@@ -108,24 +108,24 @@ def test_checks():
 
     assert not histo3.check_keys()
     assert not histo3.check_labels()
-    msg, max_key, max_len=histo3.check_alignement()
+    msg, max_key, max_len = histo3.check_alignement()
     assert not msg
     assert max_len == 2
 
-    histo2=KVH_file("test_empty.hdf")
+    histo2 = KVH_file("test_empty.hdf")
     assert (not histo2.check_report())
 
 
 def test_equilibrate():
-    histo3=KVH_file("not_equilibred.hdf")
-    max_key, max_len=histo3.get_max_len()
+    histo3 = KVH_file("not_equilibred.hdf")
+    max_key, max_len = histo3.get_max_len()
     assert max_key == 'key2'
     assert max_len == 3
-    histo3.draw_history(title = 'tata_tutu')
+    histo3.draw_history(title='tata_tutu')
 
     histo3.re_equilibrate(['key2'], max_len)
-    histo3.re_equilibrate(['key'], max_len, left = True)
-    histo3.re_equilibrate(['key3'], max_len, left = False)
+    histo3.re_equilibrate(['key'], max_len, left=True)
+    histo3.re_equilibrate(['key3'], max_len, left=False)
 
     assert histo3.dico['key'].means == [None, 1, 2]
     assert histo3.dico['key2'].means == [1, 2, 3]

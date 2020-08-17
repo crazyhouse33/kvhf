@@ -36,7 +36,10 @@ class KVH_file:
         elif isinstance(file_or_dico, str):
             self.parse_file_name(file_or_dico)
         elif hasattr(file_or_dico, 'read') and callable(file_or_dico.read):  # python 3 cant use file
-            self.parse_file(file_or_dico)
+            if hasattr(file_or_dico, 'name'):
+                self.parse_file(file_or_dico, file_or_dico.name)
+            else:
+                self.parse_file(file_or_dico, "UNKNOWFILE")
         else:
             raise TypeError(
                 "Init argument must be nothing, a path (str), a file, or dictionnary, not " +
@@ -70,7 +73,7 @@ class KVH_file:
             entry = self.dico[key]
             print(entry.dump(key, value_sep, key_sep, void_str), file=file)
 
-    def parse_file(self, file):
+    def parse_file(self, file, filename=''):
         """Parse a file"""
         file_content = file.read()
         if not type(file_content) == str:
@@ -82,9 +85,10 @@ class KVH_file:
         else:
             start = 0
         if not self.labels:
-            warn("No labels found in file: " + file.name)
+            warn("No labels found in file: " + filename)
+        cpt = start + 1
         for line in lines[start::]:
-            self.parse_line(line)
+            self.parse_line(line, cpt, filename)
 
     def parse_value(self, str_value):
         """Try to aply the generator (float by default). If fail, return None"""
@@ -98,35 +102,38 @@ class KVH_file:
         return [self.parse_value(str_value)
                 for str_value in values.strip().split(self.value_sep)]
 
-    def parse_line(self, line):
-        key, sep, values_str = line.partition(self.key_sep)
-        key = key.strip()
-        if (not sep):
-            if key:
-                warn(
-                    "Ignoring line :\n\"" +
-                    line +
-                    "\"\n because no value separator found")
-            return
+    def parse_line(self, line, line_num=-1, file_name=''):
+        try:
+            key, sep, values_str = line.partition(self.key_sep)
+            key = key.strip()
+            if (not sep):
+                if key:
+                    warn(
+                        "Ignoring line :\n\"" +
+                        line +
+                        "\"\n because no value separator found")
+                return
 
-        if key.startswith("-") and self.current_key:
+            if key.startswith("-") and self.current_key:
 
-            if key[1::].strip().startswith("unity"):
-                self.dico[self.current_key].unity = values_str.strip()
-            else:
-                values = self.parse_values(values_str)
-                if key[1::].strip().startswith("maxs"):
-                    self.dico[self.current_key].maxs = values
-                elif key[1::].strip().startswith("mins"):
-                    self.dico[self.current_key].mins = values
-                elif key[1::].strip().startswith("stdev"):
-                    self.dico[self.current_key].stdevs = values
+                if key[1::].strip().startswith("unity"):
+                    self.dico[self.current_key].unity = values_str.strip()
                 else:
-                    warn("Unknow attribute at line: " + line)
-        else:
-            self.current_key = key
-            stats = self.dico[self.current_key]
-            stats.means = self.parse_values(values_str)
+                    values = self.parse_values(values_str)
+                    if key[1::].strip().startswith("maxs"):
+                        self.dico[self.current_key].maxs = values
+                    elif key[1::].strip().startswith("mins"):
+                        self.dico[self.current_key].mins = values
+                    elif key[1::].strip().startswith("stdev"):
+                        self.dico[self.current_key].stdevs = values
+                    else:
+                        warn("Unknow attribute at line: " + line)
+            else:
+                self.current_key = key
+                stats = self.dico[self.current_key]
+                stats.means = self.parse_values(values_str)
+        except Exception as e:
+            raise ValueError("Cannot parse {}:{}:{}".format(file_name, line_num, line)) from e
 
     def parse_labels(self, line):
         self.labels = line[1::].split(self.value_sep)
@@ -134,7 +141,7 @@ class KVH_file:
     def parse_file_name(self, path):
         """Open file and parse it. """
         with open(path) as f:
-            self.parse_file(f)
+            self.parse_file(f, path)
 
     def merge_vertical(self, file2, keys=None):
         """Add entries of dico 2 corresponding to keys (by default all). If key is allready present, the new value replace the old one. This is supposed to be the same as concating 2 files and parsing the result"""
