@@ -137,7 +137,7 @@ elif git_extract or git_actualized_label:
             current_file = KVH_file(path)
             user_label=None
             if not current_file.labels:
-                user_label=input("No label detected for "+ path)
+                user_label=my_input("No label detected for "+ path)
 
             try:
                 repo=gfe.get_repo(path)
@@ -147,10 +147,15 @@ elif git_extract or git_actualized_label:
             _, the_file=head.search_files(path)
             old_file= KVH_file(the_file )
             if current_file.labels[-1] == old_file.labels[-1]:
-                user_label=input("The label of "+ path + " did not change since last commit")
+                user_label=my_input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
             output_file(current_file,path)
+            current_key, current_size=current_file.get_max_len()
+            old_key,old_size=old_file.get_max_len()
+            if current_size != old_size+1:
+                sys.exit("Detected more than one commit had been integrated at once (diff={}, should be 1). This can happen if your pre-commit routine fail after you merged the file. You should delete the file and regenerate it.".format(current_size - old_size))
+
 
                 
 elif historic_merge:

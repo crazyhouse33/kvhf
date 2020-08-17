@@ -125,14 +125,14 @@ That's why you should integrate to your commits hooks the following 3 actions:
 #### 2 Prevent Misuage of Labels
 (pre-commit) kvhfutils --actualized per\_commit\_resume
 
-This will check that the label of the file is existing and not the same as the previous commit one (Will ask you to input a label name if you did not do it in generate)
+This will check that the label of the file is existing and not the same as the previous commit one (Will ask you to input a label name if you did not do it in generate). This will also check than the file incremented by one iteration only (ie the maximum size of the keys incremented by 1)
 
 #### 3 Accumulate Resume
 ```bash
-(pre-commit) kvhfutils -o accumulator.kvhf  --extend accumulator.kvhf per\_commit\_resume
+(pre-commit) kvhfutils -o accumulator.kvhf  --historic-merge accumulator.kvhf per\_commit\_resume
 ```
 
-This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit 
+This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit action because if this is executed and a latter action fail, your hkvf file will be polluted with an additional erronous commit. However this error will be detected by the -a option.
 
 
 ## Tricks
@@ -148,9 +148,6 @@ You can also specify a list of commits. The labels will be extracted in given or
 ```bash
 kvhfutils -g -c $(git rev-list src/executor.c io.c --reverse)
 ```
-
-## Warning
-I did kvhf because I felt the need for it for another project. I built it quicquely and put it on github. I tried to do something powerfull but all the edges features are not tested. I am sure if you try to mess around with features you can read in the help option and not presented here you can encounter some bugs. Pull request accepted :)
 
 ## TODO
 3. Allow to execute a command in each commit before extraction. That would allow to generate kvhf files of previous commits with the current generation script. For now you look for git rebase exec
