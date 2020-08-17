@@ -123,16 +123,16 @@ That's why you should integrate to your commits hooks the following 3 actions:
 (pre-commit) generate.bash
 ```
 #### 2 Prevent Misuage of Labels
-(pre-commit) kvhfutils --actualized per\_commit\_resume
+(pre-commit) kvhfutils --actualized per\_commit\_resume --required-length 1
 
-This will check that the label of the file is existing and not the same as the previous commit one (Will ask you to input a label name if you did not do it in generate). This will also check than the file incremented by one iteration only (ie the maximum size of the keys incremented by 1)
+This will check that the label of the file is existing and not the same as the previous commit one (Will ask you to input a label name if you did not do it in generate). This will also check than each key is of lenght 1
 
 #### 3 Accumulate Resume
 ```bash
 (pre-commit) kvhfutils -o accumulator.kvhf  --historic-merge accumulator.kvhf per\_commit\_resume
 ```
 
-This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit action because if this is executed and a latter action fail, your hkvf file will be polluted with an additional erronous commit. However this error will be detected by the -a option.
+This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit action because if this is executed and a latter action fail, your hkvf file will be polluted with an additional erronous commit. However this error will be detected by the --required-lenght option
 
 
 ## Tricks

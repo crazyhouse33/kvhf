@@ -25,7 +25,12 @@ parser.add_argument(
     "-v",
     "--check-file",
     action='store_true',
-    help="Check than kvhf files have no problem whatsoever, such as unalignated keys, missing labels, mathematic non senses in the atrributes...\n\n If this option is given in combinaison with another action, this will run the check on the outputed file. With the option --git-extract, this will run the check on every merged commit as well.")
+    help="Check than kvhf files have no problem whatsoever, such as unalignated keys, missing labels, mathematic non senses in the atrributes...\n If this option is given in combinaison with another action, this will run the check on the outputed file. with the option --git-extract, this will run the check on every merged commit unstead.")
+
+parser.add_argument(
+    "--required-length",
+    type=int,
+    help="Check for every given files than the maximum lenght of a key match given int. \n If this option is given in combinaison with another action, this will run the check on the outputed file. with the option --git-extract, this will run the check on every merged commit unstead.")
 
 
 parser.add_argument(
@@ -57,7 +62,7 @@ group.add_argument(
     '-a',
     '--actualized',
     action='store_true',
-    help='Exit status set to 0 if FILES have a different label than in the previous commit and than the size of the file is equal to the old value +1. (ie ready to commit).')
+    help='Exit status set to 0 if FILES have a different label than in the previous commit.')
 
 group.add_argument('-g', '--git-extract', action='store_true', help="""Switch to git extraction mode.
 

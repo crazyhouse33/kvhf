@@ -32,18 +32,30 @@ def merge_handle(paths, output, vertical=True, keys=None):
     output_file(res, out_path)
 
 
-def check(kvh_File, prefix=''):
-    problems=kvh_File.check_report()
+def check_lenght(kvh_File, lenght):
+    key, size=kvh_File.get_max_len()
+    if size != required_lenght:
+        return '\nCheck required lenght of size {}, got {} on key {}'.format(required_lenght, size, key)
+    return ''
+
+
+def check_all(kvh_File, prefix=''):
+    problems=''
+    if required_lenght:
+        problems+=check_lenght(kvh_File, required_lenght)
+    if check_file:
+        problems+=kvh_File.check_report()
     if problems:
         sys.exit(prefix+problems)
+    
 
 
-def output_file(kvh_File, path):
+def output_file(kvh_File, path, no_check=False):
     if path==None:
         path= "result.kvhf"
         print ("Output path had been set to", path, "by default", file=sys.stderr)
-    if check_file:
-        check(kvh_File, "Detected problems in output file {}:\n".format(path))
+    if not no_check:
+        check_all(kvh_File, "Detected problems in output file {}:\n".format(path))
     kvh_File.dump(path)
 
 args= parser.getArgs()
@@ -67,6 +79,7 @@ historic_merge=args["historic_merge"]
 allow_gone_key=args['allow_gone_key']
 check_file=args['check_file']
 void_str=args['void_char']
+required_lenght=args['required_length']
 
 KVH_file.default_key_sep = sep_key
 KVH_file.default_value_sep =sep_val 
@@ -115,8 +128,7 @@ elif git_extract or git_actualized_label:
             commit_kvh_file= KVH_file()
             for path, file in files:
                 new_file=KVH_file(file, key_sep=sep_key, value_sep= sep_val)
-                if check_file:
-                    check(new_file, "Detected problem in commit {} at file {}:\n".format(str_commit(commit), path))
+                check_all(new_file, "Detected problem in commit {} at file {}:\n".format(str_commit(commit), path))
                 commit_kvh_file.merge_vertical(new_file,keys) 
             print ("Recolting commit", str_commit(commit,20), file=sys.stderr) 
             res.merge_historic(commit_kvh_file,keys)
@@ -128,7 +140,7 @@ elif git_extract or git_actualized_label:
                     to_merge=KVH_file(path)
                     current_kvh_file.merge_vertical(to_merge,keys)
             res.merge_horizontal(current_kvh_file, keys)
-        output_file(res,out_path)
+        output_file(res,out_path, no_check=True)
 
     elif git_actualized_label:
         
@@ -150,18 +162,14 @@ elif git_extract or git_actualized_label:
                 user_label=my_input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
-            output_file(current_file,path)
             current_key, current_size=current_file.get_max_len()
-            old_key,old_size=old_file.get_max_len()
-            if current_size != old_size+1:
-                sys.exit("Detected more than one commit had been integrated at once (diff={}, should be 1). This can happen if your pre-commit routine fail after you merged the file. You should delete the file and regenerate it.".format(current_size - old_size))
+            output_file(current_file,path)
 
 
                 
 elif historic_merge:
     if not len(paths)==2:
         sys.exit("An historical merge only work with two files as arguments")
-    past=KVH_file(path[0])
     to_merge=KVH_file(paths[-1])
     
     olds, new=res.merge_historic(to_merge, keys)
@@ -176,10 +184,8 @@ elif historic_merge:
  
 
 
-
-
-elif check_file:
+elif check_file or required_lenght:
     for path in paths:
         kvh_File= KVH_file(path)
-        check(kvh_File, "Detected problem in file {}".format(path))
+        check_all(kvh_File, "Detected problem in file {}".format(path))
 
