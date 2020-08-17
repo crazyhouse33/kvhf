@@ -14,9 +14,9 @@ def str_commit(commit, number_message_letter=20):
 
 def my_input(msg):
     if not_interactive:
-        return input(msg+'.\n\nPlease enter a new label in the prompt:')
-    else:
         sys.exit(msg)
+    else:
+        return input(msg+'.\n\nPlease enter a new label in the prompt:')
 
 
 def merge_handle(paths, output, vertical=True, keys=None):
@@ -146,7 +146,7 @@ elif git_extract or git_actualized_label:
                 continue
             _, the_file=head.search_files(path)
             old_file= KVH_file(the_file )
-            if current_file.labels[-1] == old_file.labels[-1]:
+            if old_file.labels and current_file.labels[-1] == old_file.labels[-1]:
                 user_label=my_input("The label of "+ path + " did not change since last commit")
             if user_label:
                 current_file.labels.append(user_label)
