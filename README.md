@@ -38,7 +38,7 @@ A KVHF file is composed from 3 kinds of entity, separated by lines
 You can use kvhfplot as an easy way to plot data. Imagine you have following file:
 
 ```
-#t1,this part is used only for label filetering:t2,t3
+#t1,onlyforsearch:t2,t3
 
 building time: 5,  6,7
 -maxs:         6, 10, 11
@@ -57,19 +57,19 @@ kvhfplot file
 
 will output the plot this image:
 
-![Normal mode](dev/data/images/hist.svg)
+![Normal mode](dev/data/images/hist.png)
 
 If your selection match only one label, it switch to bar chart mode:
 ```bash
 kvhfplot file -l t1
 ```
-![Pie mode](dev/data/images/hist_bars.svg)
+![Pie mode](dev/data/images/hist_bars.png)
 
 If you activate the comparison switch, it print to pie chart mode:
 ```bash
 kvhfplot file -l t1 -c
 ```
-![Pie mode](dev/data/images/hist_pie.svg)
+![Pie mode](dev/data/images/hist_pie.png)
 
 
 Run kvhfplot -h to get more details about how to control what is being plotted (add title, choose keys...)

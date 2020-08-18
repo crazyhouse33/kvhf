@@ -146,11 +146,13 @@ elif git_extract or git_actualized_label:
         
 
         for path in paths:
+            to_append=False
             current_file = KVH_file(path)
-            user_label=None
-            if not current_file.labels:
+            if current_file.labels:
+                user_label=current_file.labels[-1]
+            else:
                 user_label=my_input("No label detected for "+ path)
-
+                to_append=True
             try:
                 repo=gfe.get_repo(path)
                 head=repo.head.commit
@@ -158,16 +160,26 @@ elif git_extract or git_actualized_label:
                 continue
             _, the_file=head.search_files(path)
             old_file= KVH_file(the_file )
-            if old_file.labels and current_file.labels[-1] == old_file.labels[-1]:
-                user_label=my_input("The label of "+ path + " did not change since last commit")
-            if user_label:
+            if old_file.labels:
+                if current_file.labels==old_file.labels:
+                    user_label=my_input("The labels of "+ path + " are the same as in previous commit. Add a new one.")
+                    current_file.labels.append(user_label)
+
+                elif user_label == old_file.labels[-1]:
+                    user_label=my_input("The last label of "+ path + " is the same as previous commit. Rename it.")
+                    try:
+                        current_file.labels[-1]=user_label
+                    except IndexError:
+                        current_file.labels.append(user_label)
+            if to_append:
                 current_file.labels.append(user_label)
-            current_key, current_size=current_file.get_max_len()
             output_file(current_file,path)
 
 
                 
 elif historic_merge:
+
+    res=KVH_file(key_sep=sep_key, value_sep= sep_val)
     if not len(paths)==2:
         sys.exit("An historical merge only work with two files as arguments")
     to_merge=KVH_file(paths[-1])
@@ -176,8 +188,8 @@ elif historic_merge:
 
     if new:
         print ("New detected keys:\n", "\n".join(new), file=sys.stderr)
-    if old:
-        print ("Old keys are now missing:\n", "\n".join(old), file=sys.stderr)
+    if olds:
+        print ("Old keys are now missing:\n", "\n".join(olds), file=sys.stderr)
         if not allow_gone_key:
             sys.exit("Exiting cause --allow-gone-key is off")
     output_file(res, out_path)

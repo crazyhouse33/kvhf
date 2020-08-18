@@ -112,7 +112,6 @@ def test_extract():
 
 
 def test_disapparing_apparing():
-
     dont_crash(
         prefix +
         ' -o extract_test.kvhf -g test_apparing_disapparing/test.hdf ')

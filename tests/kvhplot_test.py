@@ -70,10 +70,18 @@ def test_crash():
         'test_data123.hdf test_data145.hdf -u tatata -l commit1 -l "commit 2" -L "commit 2" -k "loading time"')
 
     im_dir = '../../dev/data/images/'
-    dont_crash(prefix + 'example.hdf -o ' + im_dir + 'hist.svg')
-    dont_crash(prefix + 'example.hdf -l t1 -c -o ' + im_dir + 'hist_pie.svg')
-    dont_crash(prefix + 'example.hdf -l t1 -o ' + im_dir + 'hist_bars.svg')
+    dont_crash(prefix + 'example.hdf -f png -o ' + im_dir + 'hist.png')
+    dont_crash(
+        prefix +
+        'example.hdf -f png -l t1 -c -o ' +
+        im_dir +
+        'hist_pie.png')
+    dont_crash(
+        prefix +
+        'example.hdf -f png -l t1 -o ' +
+        im_dir +
+        'hist_bars.png')
 
-    assert os.path.isfile(im_dir + 'hist_pie.svg')
-    assert os.path.isfile(im_dir + 'hist.svg')
-    assert os.path.isfile(im_dir + 'hist_bars.svg')
+    assert os.path.isfile(im_dir + 'hist_pie.png')
+    assert os.path.isfile(im_dir + 'hist.png')
+    assert os.path.isfile(im_dir + 'hist_bars.png')
