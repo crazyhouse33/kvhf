@@ -275,7 +275,7 @@ class KVH_file:
         KVH_file.draw_shared_prep(title)
         pyplot.grid(axis="x")
         pyplot.ylabel(ylabel)
-        pyplot.xticks(range(len(labels)), labels, rotation=label_rot)
+        pyplot.xticks(pos, labels, rotation=label_rot)
 
         for key in keys:
             self.dico[key].plot(key, pos)

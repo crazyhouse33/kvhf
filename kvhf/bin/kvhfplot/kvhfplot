@@ -42,16 +42,13 @@ else:
 
 if not labels and not labels_filter:
     pos=None # Same
+    labels_num=len(the_file.labels)
 else:
     pos = select_pos(the_file, labels, labels_filter)
-
-if pos==None:
-    keys_num=len(the_file.dico.keys())
-else:
-    keys_num= len(pos)
+    labels_num= len(pos)
 
 
-if keys_num == 1 and pie:
+if labels_num == 1 and pie:
     the_file.draw_pie(matched_keys, title=title, it=pos[0])
 else:
     the_file.draw_history(matched_keys, ylabel=ylabel, pos=pos, title=title, label_rot=rotation)
