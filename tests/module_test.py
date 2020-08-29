@@ -66,7 +66,7 @@ def test_dump():
 def test_empty():
     histo = KVH_file("test_empty.hdf")
     histo.dump("test_empty_out.hdf")
-    histo2 = KVH_file("test_empty.hdf")
+    histo2 = KVH_file("test_empty_out.hdf")
     assert histo2 == histo
     expected = Serie_stats()
 

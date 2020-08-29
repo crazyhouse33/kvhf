@@ -13,10 +13,13 @@ all_serie = ['means'] + all_series_attributes
 def filter_out_Nones(liste, pos):
     posx = []
     values = []
-    for i, stuff in enumerate(liste):
-        if stuff is not None:
-            posx.append(pos[i])
-            values.append(stuff)
+    max_size = len(liste)
+    for position in pos:
+        if position < max_size:
+            value = liste[position]
+            if value is not None:
+                values.append(value)
+                posx.append(position)
     return posx, values
 
 
@@ -62,11 +65,11 @@ class Serie_stats:
 
     def plot(self, label, pos):
         """Plot history at given positions, remove None entries from drawing"""
-
         substat = self.fragment(pos)  # Taking subpart of pos
         substat.re_equilibrate()  # Fixing label misagnilement
 
         posmeans, means = filter_out_Nones(substat.means, pos)
+        len_means = len(means)
 
         base_line, = pyplot.plot(posmeans, means, marker='o', label=label)
         current_color = base_line.get_color()
@@ -75,7 +78,7 @@ class Serie_stats:
             label += " (" + substat.unity + ")"
 
         posbars, stdevs = filter_out_Nones(substat.stdevs, posmeans)
-        bar_means = [means[i] for i in posbars]
+        bar_means = [substat.means[i] for i in posbars]
         pyplot.errorbar(
             posbars,
             bar_means,
@@ -85,7 +88,7 @@ class Serie_stats:
             color=current_color)
 
         posmax, maxs = filter_out_Nones(substat.maxs, posmeans)
-        max_means = [means[i] for i in posmax]
+        max_means = [substat.means[i] for i in posmax]
         pyplot.fill_between(
             posmax,
             maxs,
@@ -94,7 +97,7 @@ class Serie_stats:
             color=current_color)
 
         posmin, mins = filter_out_Nones(substat.mins, posmeans)
-        min_means = [means[i] for i in posmin]
+        min_means = [substat.means[i] for i in posmin]
         pyplot.fill_between(
             posmin,
             mins,
@@ -164,8 +167,9 @@ class Serie_stats:
         for attribute in all_series_attributes:
             atr_list = getattr(self, attribute)
             if atr_list:
+                values_filtered= [self.dump_filter(value, void_str) for value in atr_list]
                 lines.append('-' + attribute + key_sep +
-                             value_sep.join(map(str, atr_list)))
+                             value_sep.join(values_filtered))
         if self.unity:
             lines.append('-unity' + key_sep + self.unity)
         return '\n'.join(lines)

@@ -81,7 +81,7 @@ def test_crash():
         'example.hdf -f png -l t1 -o ' +
         im_dir +
         'hist_bars.png')
-
     assert os.path.isfile(im_dir + 'hist_pie.png')
     assert os.path.isfile(im_dir + 'hist.png')
     assert os.path.isfile(im_dir + 'hist_bars.png')
+    dont_crash(prefix + ' test_empty.hdf ')
