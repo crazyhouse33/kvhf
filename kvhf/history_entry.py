@@ -68,11 +68,10 @@ class Serie_stats:
 
         if self.unity:
             label += " (" + self.unity + ")"
-        substat = self.fragment(pos)  # Taking subpart of pos
+        substat = self.fragment()  # Working on copy to call re_equilibrate
         substat.re_equilibrate()  # Fixing label misagnilement
 
         posmeans, means = filter_out_Nones(substat.means, pos)
-        len_means = len(means)
 
         base_line, = pyplot.plot(posmeans, means, marker='o', label=label)
         current_color = base_line.get_color()
