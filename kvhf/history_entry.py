@@ -65,6 +65,9 @@ class Serie_stats:
 
     def plot(self, label, pos):
         """Plot history at given positions, remove None entries from drawing"""
+
+        if self.unity:
+            label += " (" + self.unity + ")"
         substat = self.fragment(pos)  # Taking subpart of pos
         substat.re_equilibrate()  # Fixing label misagnilement
 
@@ -73,9 +76,6 @@ class Serie_stats:
 
         base_line, = pyplot.plot(posmeans, means, marker='o', label=label)
         current_color = base_line.get_color()
-
-        if substat.unity:
-            label += " (" + substat.unity + ")"
 
         posbars, stdevs = filter_out_Nones(substat.stdevs, posmeans)
         bar_means = [substat.means[i] for i in posbars]
@@ -107,6 +107,9 @@ class Serie_stats:
 
     def plot_one(self, label, drawing_pos, position):
         """Plotting considering only one position (The notmal plot stay just empty). This can be called only on equilibred entries with only one label"""
+        if self.unity:
+            label += " (" + self.unity + ")"
+
         substat = self.fragment([position])  # Taking subpart of pos
         substat.re_equilibrate()  # Fixing label misagnilement
 
@@ -167,7 +170,9 @@ class Serie_stats:
         for attribute in all_series_attributes:
             atr_list = getattr(self, attribute)
             if atr_list:
-                values_filtered= [self.dump_filter(value, void_str) for value in atr_list]
+                values_filtered = [
+                    self.dump_filter(
+                        value, void_str) for value in atr_list]
                 lines.append('-' + attribute + key_sep +
                              value_sep.join(values_filtered))
         if self.unity:
