@@ -240,7 +240,7 @@ class KVH_file:
     def draw_pie(self, keys=None, title='', it=-1):
         """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys is None:
-            keys = self.dico.keys()
+            keys = sorted(self.dico.keys())
 
         values = [self.dico[key].means[it] for key in keys]
         title += self.decorate_title_label(it, title)
@@ -258,7 +258,7 @@ class KVH_file:
             pos = range(self.get_max_len()[1])
 
         if keys is None:
-            keys = self.dico.keys()
+            keys = sorted(self.dico.keys())
 
         if len(pos) == 1:
             # it=-1 crash for empty list or empty attributes
@@ -289,7 +289,7 @@ class KVH_file:
             ylabel = ""
 
         if keys is None:
-            keys = self.dico.keys()
+            keys = sorted(self.dico.keys())
 
         KVH_file.draw_shared_prep(title)
         title += self.decorate_title_label(it, title)
