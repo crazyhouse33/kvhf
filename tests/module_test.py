@@ -58,8 +58,8 @@ def test_plot():
     histo3 = KVH_file("test_empty.hdf")
     histo3.draw_history()
     histo3.draw_bars(it=1)
+    histo3.draw_pie(it=1)
     histo3.plot(block=False)
-
 
 
 def test_dump():

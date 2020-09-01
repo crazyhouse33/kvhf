@@ -1,7 +1,7 @@
 import matplotlib.pyplot as pyplot
 from warnings import warn
 from collections import defaultdict
-from kvhf.history_entry import Serie_stats
+from kvhf.history_entry import Serie_stats,filter_out_Nones
 from kvhf.libs.ppath import prepare_path, open_mkdir
 
 
@@ -226,27 +226,24 @@ class KVH_file:
             pyplot.title(title)
             fig.canvas.set_window_title(title)
 
-    def decorate_title_label(self, it, title):
-        try:
-            label = self.label_repr(self.labels[it])
-            if label:
-                if title:
-                    return '({})'.format(label)
-                else:
-                    return label
-        except IndexError:
-            return ''
 
     def draw_pie(self, keys=None, title='', it=-1):
         """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys is None:
             keys = sorted(self.dico.keys())
 
-        values = [self.dico[key].means[it] for key in keys]
-        title += self.decorate_title_label(it, title)
+        values=[]
+        for key in keys:
+            entry=self.dico[key]
+            substat = entry.fragment()  # Working on copy to call re_equilibrate
+            substat.re_equilibrate()  # Fixing label misagnilement
+            values.append(substat.means[it])
+
+        pos, values = filter_out_Nones(values, range(len(values)))
+        labels= [keys[position] for position in pos] 
 
         KVH_file.draw_shared_prep(title)
-        pyplot.pie(values, labels=keys, autopct='%1.1f%%')
+        pyplot.pie(values, labels=labels, autopct='%1.1f%%')
 
     def draw_history(self, keys=None, pos=None,
                      ylabel=None, title='', label_rot=0):
@@ -282,6 +279,7 @@ class KVH_file:
 
         pyplot.legend()
 
+    #TODO integrate unity in labels
     def draw_bars(self, keys=None, ylabel=None, title='', it=-1, label_rot=0):
         """Plot keys sides by side."""
 
@@ -292,7 +290,6 @@ class KVH_file:
             keys = sorted(self.dico.keys())
 
         KVH_file.draw_shared_prep(title)
-        title += self.decorate_title_label(it, title)
 
         pyplot.xticks(range(len(keys)), keys, rotation=label_rot)
         pyplot.grid(axis="y")

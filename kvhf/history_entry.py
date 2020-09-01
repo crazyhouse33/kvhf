@@ -106,7 +106,7 @@ class Serie_stats:
 
     def plot_one(self, label, drawing_pos, position):
         """Plotting considering only one position (The notmal plot stay just empty). This can be called only on equilibred entries with only one label"""
-        
+
         if self.unity:
             label += " (" + self.unity + ")"
 
@@ -118,14 +118,14 @@ class Serie_stats:
         the_min = substat.mins[position]
         the_max = substat.maxs[position]
 
-        if the_mean==None:
+        if the_mean is None:
             return
 
         base_line, = pyplot.plot(
             drawing_pos, the_mean, marker='o', label=label)
         current_color = base_line.get_color()
 
-        if the_stdev !=None:
+        if the_stdev is not None:
             pyplot.errorbar(
                 drawing_pos,
                 the_mean,
@@ -135,7 +135,7 @@ class Serie_stats:
                 color=current_color)
 
         # Pyplot height variable is really badely named.
-        if the_min !=None:
+        if the_min is not None:
             pyplot.bar(
                 drawing_pos,
                 the_mean - the_min,
@@ -143,7 +143,7 @@ class Serie_stats:
                 alpha=0.2,
                 color=current_color)
 
-        if the_max!=None:
+        if the_max is not None:
             pyplot.bar(
                 drawing_pos,
                 the_max - the_mean,
