@@ -263,7 +263,7 @@ class KVH_file:
         if len(pos) == 1:
             # it=-1 crash for empty list or empty attributes
             return self.draw_bars(keys=keys, ylabel=ylabel,
-                                  title=title, it=0, label_rot=label_rot)
+                                  title=title, it=pos[0], label_rot=label_rot)
 
         labels = [
             self.label_repr(

@@ -55,6 +55,12 @@ def test_plot():
     histo2.draw_bars()
     histo2.plot(block=False)
 
+    histo3 = KVH_file("test_empty.hdf")
+    histo3.draw_history()
+    histo3.draw_bars(it=1)
+    histo3.plot(block=False)
+
+
 
 def test_dump():
     histo_full = KVH_file("test_all_print.hdf")
