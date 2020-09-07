@@ -35,7 +35,7 @@ A KVHF file is composed from 3 kinds of entity, separated by lines
 
 
 ### Exemple
-You can use kvhfplot as an easy way to plot data. Imagine you have following file:
+Imagine you have following file:
 
 ```
 #t1,onlyforsearch:t2,t3
@@ -57,22 +57,24 @@ kvhfplot file
 
 will output the plot this image:
 
-![Normal mode](dev/data/images/hist.png)
+![Iteration mode](https://github.com/crazyhouse33/kvhf/blob/dev/dev/data/images/hist.png?raw=true)
 
 If your selection match only one label, it switch to bar chart mode:
 ```bash
 kvhfplot file -l t1
 ```
-![Pie mode](dev/data/images/hist_bars.png)
+![Key mode](https://github.com/crazyhouse33/kvhf/blob/dev/dev/data/images/hist_bars.png?raw=true)
 
 If you activate the comparison switch, it print to pie chart mode:
 ```bash
 kvhfplot file -l t1 -c
 ```
-![Pie mode](dev/data/images/hist_pie.png)
+![Pie mode](https://github.com/crazyhouse33/kvhf/blob/dev/dev/data/images/hist_pie.png?raw=true)
 
 
 Run kvhfplot -h to get more details about how to control what is being plotted (add title, choose keys...)
+
+Any value can be "\_", which denote the fact that for an iteration the value was unknown.
 
 ## Continious Integration and KVHF
 
@@ -115,10 +117,9 @@ This step is not mandatory to use kvhf but any humans are guaranted to make the 
 2. Forgeting to put a label on the new per\_commit\_resume file
 3. Forgeting to merge the resume with the accumulator
 
-That's why you should integrate to your commits hooks the following actions:
+That's why you should integrate to your commits hooks the following actions.
 
-#### 1 Forcing Regeneration of Resume File
-
+#### 1 Forcing Regeneration of Resume File
 ```bash
 (pre-commit) generate.bash
 ```
@@ -132,7 +133,7 @@ This will check that the label of the file is existing and not the same as the p
 (pre-commit) kvhfutils -o accumulator.kvhf  --historic-merge accumulator.kvhf per\_commit\_resume
 ```
 This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit action because if this is executed and a latter action fail, your hkvf file will be polluted with an additional erronous commit. However this error will be detected by the --required-lenght option
-#### 4 Ammend the changes
+#### 4 Amend the changes
 (post-commit) git commit --amend accumulator.kvhf per\_commit\_resume
 This may be unnecessary if your continuous integration already include your pre-commit modifications in the commit.
 

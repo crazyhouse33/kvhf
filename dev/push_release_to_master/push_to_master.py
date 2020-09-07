@@ -68,6 +68,8 @@ changeLogMessage= header+ args.message
 #distribute
 change_dir(root_dir+'/dev')
 threatCommand("./distribute.bash")
+change_dir(root_dir)
+
 
 #Commit in master
 threatCommand("git checkout master")
