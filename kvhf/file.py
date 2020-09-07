@@ -1,7 +1,7 @@
 import matplotlib.pyplot as pyplot
 from warnings import warn
 from collections import defaultdict
-from kvhf.history_entry import Serie_stats,filter_out_Nones
+from kvhf.history_entry import Serie_stats, filter_out_Nones
 from kvhf.libs.ppath import prepare_path, open_mkdir
 
 
@@ -226,21 +226,20 @@ class KVH_file:
             pyplot.title(title)
             fig.canvas.set_window_title(title)
 
-
     def draw_pie(self, keys=None, title='', it=-1):
         """Plot pie chart of last values of given keys (all by default) at the version given by the index. By default last label is used"""
         if keys is None:
             keys = sorted(self.dico.keys())
 
-        values=[]
+        values = []
         for key in keys:
-            entry=self.dico[key]
+            entry = self.dico[key]
             substat = entry.fragment()  # Working on copy to call re_equilibrate
             substat.re_equilibrate()  # Fixing label misagnilement
             values.append(substat.means[it])
 
         pos, values = filter_out_Nones(values, range(len(values)))
-        labels= [keys[position] for position in pos] 
+        labels = [keys[position] for position in pos]
 
         KVH_file.draw_shared_prep(title)
         pyplot.pie(values, labels=labels, autopct='%1.1f%%')
@@ -279,7 +278,7 @@ class KVH_file:
 
         pyplot.legend()
 
-    #TODO integrate unity in labels
+    # TODO integrate unity in labels
     def draw_bars(self, keys=None, ylabel=None, title='', it=-1, label_rot=0):
         """Plot keys sides by side."""
 

@@ -1,7 +1,7 @@
 # KVHF
 Key Values History File.
 
-This python package come from a suit of software that aim to make your continious integration system able to plot intersting performance related metrics across commits.
+This python package come from a suit of software that aim to make your continious integration system able to compare intersting performance related metrics across commits.
 
 You can also use this as an easy way to plot graphs.
 
@@ -115,7 +115,7 @@ This step is not mandatory to use kvhf but any humans are guaranted to make the 
 2. Forgeting to put a label on the new per\_commit\_resume file
 3. Forgeting to merge the resume with the accumulator
 
-That's why you should integrate to your commits hooks the following 3 actions:
+That's why you should integrate to your commits hooks the following actions:
 
 #### 1 Forcing Regeneration of Resume File
 
@@ -131,14 +131,16 @@ This will check that the label of the file is existing and not the same as the p
 ```bash
 (pre-commit) kvhfutils -o accumulator.kvhf  --historic-merge accumulator.kvhf per\_commit\_resume
 ```
-
 This save the need to extract the whole history each time you want to plot it. This must be one of the last pre-commit action because if this is executed and a latter action fail, your hkvf file will be polluted with an additional erronous commit. However this error will be detected by the --required-lenght option
+#### 4 Ammend the changes
+(post-commit) git commit --amend accumulator.kvhf per\_commit\_resume
+This may be unnecessary if your continuous integration already include your pre-commit modifications in the commit.
 
 
 ## Tricks
 
 ### Other way of filtering commits
-The process of choosing wich labels to plot can be tedious even with the regexp selection/filter. Alternatively you can use kvhfutils -g to extract a kvhf file from given commits only. Here you have this commit view that allow you to select commits that modified a particular set of file such as in the following exemple:
+Choosing wich iteration to plot with the labels regexp selection/filter is not the only way. Alternatively you can use kvhfutils -g to extract a kvhf file from subsets of commits only. You are able to select commits that modified a particular set of file such as in the following exemple:
 ```bash
 kvhfutils --git-extract --path-restrict src/executor.c -p io.c -o important_changes.kvhf
 ```
@@ -150,7 +152,11 @@ kvhfutils -g -c $(git rev-list src/executor.c io.c --reverse)
 ```
 
 ## TODO
-3. Allow to execute a command in each commit before extraction. That would allow to generate kvhf files of previous commits with the current generation script. For now you look for git rebase exec
+3. Allow to execute a command in each commit before extraction. That would allow to generate kvhf files of previous commits with the current generation script. For now you should look into git rebase exec
 4. (plotting) Smarter way to choose the stale according to keys values
-3. (plotting) New attributes to plot?
+3. (plotting) New attributes number of occurence, allong with total mode (that print summed value )
+4. (plotting) 
+5. (utils) Allow -prefix option for merges that would append a prefix to any merged keys
+6. Add same keys option, that when recolting/plotting considers somes keys renamed (warning on collision)
+7. Undestand what'up with gfe tests not runnable out of my local machine (git submodule machinery messing with it, some necessary file are not versionned)
 

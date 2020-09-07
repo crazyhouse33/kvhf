@@ -3,15 +3,15 @@ import pytest
 
 
 def test_simple():
-    generator = gfe.explore_commits(gfe.get_repo('test'), reverse=True)
+    generator = gfe.explore_commits(gfe.get_repo('test_gfe'), reverse=True)
     commit = next(generator)
-    path, file = commit.search_files('test/test')
+    path, file = commit.search_files('test_gfe/test')
     assert file.read() == b"test1\n"
     commit = next(generator)
-    path, file = commit.search_files('test/test')
+    path, file = commit.search_files('test_gfe/test')
     assert file.read() == b"test2\n"
     commit = next(generator)
-    path, file = commit.search_files('test/test')
+    path, file = commit.search_files('test_gfe/test')
     assert file.read() == b"test3\n"
 
     with pytest.raises(StopIteration):
@@ -20,14 +20,14 @@ def test_simple():
 
 def test_filter():
     generator = gfe.explore_commits(
-        gfe.get_repo("test"),
-        filter=["d2558f4f11347a136efe81d4ea97b4c80c4dec14"],
+        gfe.get_repo("test_gfe"),
+        filter=["01471ef6658ee9a96d1d69f926240edf641c1c20"],
         reverse=True)
     commit = next(generator)
-    path, file = commit.search_files('test/test')
+    path, file = commit.search_files('test_gfe/test')
     assert file.read() == b"test1\n"
     commit = next(generator)
-    path, file = commit.search_files('test/test')
+    path, file = commit.search_files('test_gfe/test')
     assert file.read() == b"test3\n"
     with pytest.raises(StopIteration):
         commit = next(generator)

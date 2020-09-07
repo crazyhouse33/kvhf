@@ -48,7 +48,6 @@ if not args.dry:
 current_dir=os.getcwd()
 #This script assume your test command build everything that need to be rebuilded
 
-breakpoint()
 root_dir= check_output(['git', 'rev-parse' ,'--show-toplevel']).decode()[:-1]
 test_script="run_tests.bash"
 test_script_dir=root_dir+"/tests/"
