@@ -178,6 +178,7 @@ class KVH_file:
             self.dico[key].extend(file2.dico[key])
 
     def merge_historic(self, file2, keys=None):
+        """Merge second file assuming it's a new time iteration, gestionning key appearance and deletion. Return deletions and appearances"""
         if keys is None:
             keys = file2.dico.keys()
 

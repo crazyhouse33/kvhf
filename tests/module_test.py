@@ -35,9 +35,21 @@ def test_merge_vertical():
     histo1 = KVH_file("test_data123.hdf")
     histo2 = KVH_file("test_data145.hdf")
     histo1.merge_vertical(histo2)
-
     expected = KVH_file("concatenation.hdf")
     assert expected == histo1
+
+def test_merge_historic():
+    histo1 = KVH_file("test_data123.hdf")
+    histo2= KVH_file("test_data123historic.hdf")
+    olds, news=histo1.merge_historic(histo2)
+    assert sorted(olds) == sorted(["parsing args"])
+    assert sorted(news) == sorted(["a_new_key","a_new_key2"])
+
+    expected=KVH_file("test_data123historic_expected.hdf")
+
+    assert expected == histo1
+
+
 
 
 def test_plot():

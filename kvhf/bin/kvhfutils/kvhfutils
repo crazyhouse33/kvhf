@@ -179,10 +179,10 @@ elif git_extract or git_actualized_label:
                 
 elif historic_merge:
 
-    res=KVH_file(key_sep=sep_key, value_sep= sep_val)
     if not len(paths)==2:
         sys.exit("An historical merge only work with two files as arguments")
-    to_merge=KVH_file(paths[-1])
+    res=KVH_file(paths[0], key_sep=sep_key, value_sep= sep_val)
+    to_merge=KVH_file(paths[1], key_sep=sep_key, value_sep= sep_val)
     
     olds, new=res.merge_historic(to_merge, keys)
 
@@ -193,7 +193,7 @@ elif historic_merge:
         if not allow_gone_key:
             sys.exit("Exiting cause --allow-gone-key is off")
     output_file(res, out_path)
- 
+
 
 
 elif check_file or required_lenght:
