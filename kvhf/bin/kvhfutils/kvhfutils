@@ -158,7 +158,11 @@ elif git_extract or git_actualized_label:
                 head=repo.head.commit
             except Exception:#There is no commit for this path so its new
                 continue
-            _, the_file=head.search_files(path)
+            path_blob=head.search_files([path])
+            if not path_blob:# The path is not existing in previous commit so its new
+                continue
+
+            _, the_file=path_blob[0]
             old_file= KVH_file(the_file )
             if old_file.labels:
                 if current_file.labels==old_file.labels:

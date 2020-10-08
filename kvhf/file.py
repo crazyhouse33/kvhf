@@ -306,7 +306,7 @@ class KVH_file:
         if format is None:
             format = 'svg'
         prepare_path(path)
-        pyplot.savefig(path, format=format)
+        pyplot.savefig(path, format=format, transparent=True)
 
     def plot(self, block=False):
         pyplot.show(block=block)

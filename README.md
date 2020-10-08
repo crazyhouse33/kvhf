@@ -153,10 +153,12 @@ kvhfutils -g -c $(git rev-list src/executor.c io.c --reverse)
 ```
 
 ## TODO
+
+8. BUG when history merging (Not requelibrating the entries corectly)
 3. Allow to execute a command in each commit before extraction. That would allow to generate kvhf files of previous commits with the current generation script. For now you should look into git rebase exec
 4. (plotting) Smarter way to choose the stale according to keys values
 3. (plotting) New attributes number of occurence, allong with total mode (that print summed value )
-4. (plotting) 
+4. (plotting) Allow to choose between transparent/white background
 5. (utils) Allow -prefix option for merges that would append a prefix to any merged keys
 6. Add same keys option, that when recolting/plotting considers somes keys renamed (warning on collision)
 7. Undestand what'up with gfe tests not runnable out of my local machine (git submodule machinery messing with it, some necessary file are not versionned)
