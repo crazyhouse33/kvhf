@@ -11,7 +11,8 @@ parser.add_argument(
     'files',
     metavar='FILES',
     nargs='+',
-    help="The files to manipulate")
+    help="The files to manipulate. If a directory is given, it will find recursively every .kvf file. Note that it wont recolt kvhf files. This is usefull for build systems")
+
 parser.add_argument('-o', '--out-path',
                     help='Path of potential output')
 

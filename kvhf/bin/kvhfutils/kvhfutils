@@ -4,6 +4,8 @@ import sys
 from kvhf.file import KVH_file
 from kvhf.history_entry import all_serie
 import kvhf.libs.gfe as gfe
+import glob
+import os
 
 
 def str_commit(commit, number_message_letter=20):
@@ -58,6 +60,15 @@ def output_file(kvh_File, path, no_check=False):
         check_all(kvh_File, "Detected problems in output file {}:\n".format(path))
     kvh_File.dump(path)
 
+def expand_directories(paths):
+    res=[]
+    for path in paths:
+        if os.path.isdir(path):
+            res.extend(glob.glob(path+'/**/*.kvf',recursive=True))
+        else:
+            res.append(path)
+    return res
+
 args= parser.getArgs()
 
 paths = args["files"]
@@ -84,6 +95,9 @@ required_lenght=args['required_length']
 KVH_file.default_key_sep = sep_key
 KVH_file.default_value_sep =sep_val 
 KVH_file.default_void_str=void_str
+
+# Finding every kvf in given directories 
+paths= expand_directories(paths)
 
   
 if merge:

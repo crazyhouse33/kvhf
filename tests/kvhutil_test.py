@@ -130,6 +130,13 @@ def test_disapparing_apparing():
     assert f.dico['key2'].means == [2.0, None, 4]
     assert f.dico['key3'].means == [None, 3, None]
 
+def test_recolt():
+    remove("recolt.kvf")
+    dont_crash(
+        prefix +
+        ' path_recolt -m -o recolt.hkvf')
+    expected = KVH_file("path_recolt/expected.kvhf")
+    assert expected == KVH_file("recolt.hkvf")
 
 def test_required_lenght():
     dont_crash(
