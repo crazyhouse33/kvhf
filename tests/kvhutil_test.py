@@ -2,7 +2,7 @@
 import os
 import pytest
 from kvhf.file import KVH_file
-
+import subprocess 
 
 path = '../../kvhf/bin/kvhfutils'
 prefix = 'PYTHONPATH=' + path + ':../.. python3 ' + path + '/kvhfutils '
@@ -15,13 +15,23 @@ def remove(path):
         pass
 
 
-# should be dont fail
-def dont_crash(command_line):
-    assert os.WEXITSTATUS(os.system(command_line)) == 0
+def run(command_line,input_data=None):
+     p=subprocess.Popen(command_line,  stdin=subprocess.PIPE, shell=True)
+     if input_data!=None:
+         p.stdin.write(input_data)
+     p.stdin.close()
+     p.wait()
+     return p
+
+def crash(command_line, input_data=None):
+    process=run(command_line, input_data)
+    assert process.returncode != 0
+
+def dont_crash(command_line,input_data=None):
+    process=run(command_line, input_data)
+    assert process.returncode == 0
 
 
-def crash(command_line):
-    assert os.WEXITSTATUS(os.system(command_line)) != 0
 
 
 def test_merge():
@@ -59,9 +69,16 @@ def test_add():
 
 
 def test_actualized():
+    empty_label_file= "empty_lab.kvf"
+    remove(empty_label_file)
+    empty=KVH_file()
+    empty.dump(empty_label_file)
+    dont_crash(" ".join([prefix, empty_label_file, "-a"]), input_data=b"toto")
+    result= KVH_file(empty_label_file)
+    assert result.labels==["toto"]
+
     dont_crash(prefix + 'test_new/test -a')
     dont_crash(prefix + 'test_actualized/test -a ')
-
     crash(prefix + 'test_not_actualized/test.hdf -a ')
     crash(prefix + 'test_not_actualized/test.hdf test_actualized -a ')
 

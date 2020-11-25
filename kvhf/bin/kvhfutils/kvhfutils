@@ -7,6 +7,10 @@ import kvhf.libs.gfe as gfe
 import glob
 import os
 
+# This script started when this project was a subproject for my master project. Back then I tought I did not had time to build a proper controller/handlers architecture. Well here you are :)
+
+# TODO at list create a list of handler that returns kvhf file, in order to be able to tests the handlers without running the external process
+
 
 def str_commit(commit, number_message_letter=20):
     message=commit.message[0:number_message_letter]
@@ -106,7 +110,6 @@ if merge:
 elif extend_history:
     merge_handle(paths, out_path, vertical=False, keys=keys)
 elif keys:
-
     for path in paths:
         try:
             kvh_File= KVH_file(path)
@@ -134,7 +137,6 @@ elif git_extract or git_actualized_label:
     if not paths:
         sys.exit("At least one file to extract must be given in order to localize git repo")
     if git_extract:
-        
         repo= gfe.get_repo(paths[0])
         res= KVH_file()
         for commit in gfe.explore_commits(repo, commits=commits_manual_selection, filter=forbiden_commits, branchs=branchs, paths_restrict=paths_restrict,reverse=True):
@@ -157,26 +159,21 @@ elif git_extract or git_actualized_label:
         output_file(res,out_path, no_check=True)
 
     elif git_actualized_label:
-        
-
         for path in paths:
-            to_append=False
             current_file = KVH_file(path)
             if current_file.labels:
                 user_label=current_file.labels[-1]
             else:
                 user_label=my_input("No label detected for "+ path)
-                to_append=True
+                current_file.labels.append(user_label)
             try:
                 repo=gfe.get_repo(path)
                 head=repo.head.commit
-            except Exception:#There is no commit for this path so its new
+                path_blob=head.search_files([path])
+                _, the_file=path_blob[0]
+            except Exception:#There is no path for previous commit or no commit at all
+                output_file(current_file,path)
                 continue
-            path_blob=head.search_files([path])
-            if not path_blob:# The path is not existing in previous commit so its new
-                continue
-
-            _, the_file=path_blob[0]
             old_file= KVH_file(the_file )
             if old_file.labels:
                 if current_file.labels==old_file.labels:
@@ -185,15 +182,8 @@ elif git_extract or git_actualized_label:
 
                 elif user_label == old_file.labels[-1]:
                     user_label=my_input("The last label of "+ path + " is the same as previous commit. Rename it.")
-                    try:
-                        current_file.labels[-1]=user_label
-                    except IndexError:
-                        current_file.labels.append(user_label)
-            if to_append:
-                current_file.labels.append(user_label)
+                    current_file.labels[-1]=user_label
             output_file(current_file,path)
-
-
                 
 elif historic_merge:
 
