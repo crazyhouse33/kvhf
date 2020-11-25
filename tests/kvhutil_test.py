@@ -2,7 +2,7 @@
 import os
 import pytest
 from kvhf.file import KVH_file
-import subprocess 
+import subprocess
 
 path = '../../kvhf/bin/kvhfutils'
 prefix = 'PYTHONPATH=' + path + ':../.. python3 ' + path + '/kvhfutils '
@@ -15,23 +15,23 @@ def remove(path):
         pass
 
 
-def run(command_line,input_data=None):
-     p=subprocess.Popen(command_line,  stdin=subprocess.PIPE, shell=True)
-     if input_data!=None:
-         p.stdin.write(input_data)
-     p.stdin.close()
-     p.wait()
-     return p
+def run(command_line, input_data=None):
+    p = subprocess.Popen(command_line, stdin=subprocess.PIPE, shell=True)
+    if input_data is not None:
+        p.stdin.write(input_data)
+    p.stdin.close()
+    p.wait()
+    return p
+
 
 def crash(command_line, input_data=None):
-    process=run(command_line, input_data)
+    process = run(command_line, input_data)
     assert process.returncode != 0
 
-def dont_crash(command_line,input_data=None):
-    process=run(command_line, input_data)
+
+def dont_crash(command_line, input_data=None):
+    process = run(command_line, input_data)
     assert process.returncode == 0
-
-
 
 
 def test_merge():
@@ -69,13 +69,22 @@ def test_add():
 
 
 def test_actualized():
-    empty_label_file= "empty_lab.kvf"
+    empty_label_file = "empty_lab.kvf"
     remove(empty_label_file)
-    empty=KVH_file()
+    empty = KVH_file()
     empty.dump(empty_label_file)
     dont_crash(" ".join([prefix, empty_label_file, "-a"]), input_data=b"toto")
-    result= KVH_file(empty_label_file)
-    assert result.labels==["toto"]
+    result = KVH_file(empty_label_file)
+    assert result.labels == ["toto"]
+
+    # Testing not interactive. If we dont use an input, the way pytest work
+    # simulate this option.
+    empty = KVH_file()
+    empty.dump(empty_label_file)
+    crash(" ".join([prefix,
+                    empty_label_file,
+                    "-a --not-interactive"]),
+          input_data=b"toto")
 
     dont_crash(prefix + 'test_new/test -a')
     dont_crash(prefix + 'test_actualized/test -a ')
@@ -147,6 +156,7 @@ def test_disapparing_apparing():
     assert f.dico['key2'].means == [2.0, None, 4]
     assert f.dico['key3'].means == [None, 3, None]
 
+
 def test_recolt():
     remove("recolt.kvf")
     dont_crash(
@@ -154,6 +164,7 @@ def test_recolt():
         ' path_recolt -m -o recolt.hkvf')
     expected = KVH_file("path_recolt/expected.kvhf")
     assert expected == KVH_file("recolt.hkvf")
+
 
 def test_required_lenght():
     dont_crash(
